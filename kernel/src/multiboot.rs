@@ -147,9 +147,13 @@ pub union MultibootSymbolTableUnion {
     pub elf_sec:  MultibootELFSectionHeaderTable,
 }
 
-pub const MULTIBOOT_FRAMEBUFFER_TYPE_INDEXED: u8  = 0;
-pub const MULTIBOOT_FRAMEBUFFER_TYPE_RGB: u8      = 1;
-pub const MULTIBOOT_FRAMEBUFFER_TYPE_EGA_TEXT: u8 = 2;
+#[derive(Debug, Clone, Copy)]
+#[repr(u8)]
+pub enum MultibootFramebufferType {
+    Indexed = 0,
+    Rgb     = 1,
+    EgaText = 2,
+}
 
 /// Struct for framebuffer palette information.
 #[derive(Debug, Clone, Copy)]
@@ -229,7 +233,7 @@ pub struct MultibootInfo {
     pub framebuffer_width:  MultibootU32,
     pub framebuffer_height: MultibootU32,
     pub framebuffer_bpp:    MultibootU8,
-    pub framebuffer_type:   MultibootU8,
+    pub framebuffer_type:   MultibootFramebufferType,
 
     pub framebuffer_union: FramebufferUnion,
 }
@@ -242,11 +246,15 @@ pub struct MultibootColor {
     pub blue:  MultibootU8,
 }
 
-pub const MULTIBOOT_MEMORY_AVAILABLE: u32        = 1;
-pub const MULTIBOOT_MEMORY_RESERVED: u32         = 2;
-pub const MULTIBOOT_MEMORY_ACPI_RECLAIMABLE: u32 = 3;
-pub const MULTIBOOT_MEMORY_NVS: u32              = 4;
-pub const MULTIBOOT_MEMORY_BADRAM: u32           = 5;
+#[derive(Debug, Clone, Copy)]
+#[repr(u32)]
+pub enum MultibootMemoryType {
+    Available       = 1,
+    Reserved        = 2,
+    AcpiReclaimable = 3,
+    Nvs             = 4,
+    BadRam          = 5,
+}
 
 #[derive(Debug, Clone, Copy)]
 #[repr(C, packed)]
@@ -254,7 +262,7 @@ pub struct MultibootMmapEntry {
     pub size:  MultibootU32,
     pub addr:  MultibootU64,
     pub len:   MultibootU64,
-    pub mtype: MultibootU32,
+    pub mtype: MultibootMemoryType,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -270,8 +278,6 @@ pub struct MultibootModList {
     /// padding to take it to 16 bytes (must be zero).
     pub pad: MultibootU32,
 }
-
-// using multiboot_module_t = multiboot_mod_list;
 
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
