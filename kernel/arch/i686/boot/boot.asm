@@ -23,7 +23,7 @@
 # adjusting power management settings and etc.
 .set MBOOT_PAGE_ALIGN, 1 << 0 # memory should be page-aligned to 4 KB
 .set MBOOT_MEM_INFO,   1 << 1 # request memory information from the bootloader
-.set MBOOT_USE_GFX,    0 << 2 # enable graphics mode
+.set MBOOT_USE_GFX,    1 << 2 # enable graphics mode
 
 # indicates a bootable device
 .set MBOOT_FLAGS, (MBOOT_PAGE_ALIGN | MBOOT_MEM_INFO | MBOOT_USE_GFX)

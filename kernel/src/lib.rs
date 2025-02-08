@@ -14,29 +14,33 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#![no_main]
-#![no_std]
+//! Kernel entry point.
 
-pub mod multiboot;
-pub mod init;
+#![no_std]                      // Do not use the standard library.
+#![no_main]                     // Do not use the standard main function.
+#![allow(clippy::empty_loop)]   // Ignore empty loop.
+#![allow(dead_code)]            // Allow unused values.
 
-use multiboot::MultibootInfo;
+mod eciton;
 
-static GREETING: &[u8] = b"Eciton exokernel v0.0.0";
+use eciton::multiboot::{MULTIBOOT_BOOTLOADER_MAGIC, MultibootInfo};
+use core::panic::PanicInfo;
 
+
+/// Kernel entry point.
 #[unsafe(no_mangle)]
-extern "C" fn kmain(_magic: u32, _mboot: &MultibootInfo) -> ! {
+extern "C" fn kmain(magic: u32, boot_info: &'static MultibootInfo) -> !
+{
+    // Check that multiboot magic number is correct
+    assert_eq!(magic, MULTIBOOT_BOOTLOADER_MAGIC);
+    eciton::setup_kernel(boot_info);
 
-    assert_eq!(_magic, multiboot::MULTIBOOT_BOOTLOADER_MAGIC);
+    loop {}
+}
 
-    let vga_buffer = 0xb8000 as *mut u8;
-
-    for (i, &byte) in GREETING.iter().enumerate() {
-        unsafe {
-            *vga_buffer.offset(i as isize * 2) = byte;
-            *vga_buffer.offset(i as isize * 2 + 1) = 0xE;
-        }
-    }
-
+/// Custom kernel panic handler.
+#[panic_handler]
+fn panic(_: &PanicInfo) -> !
+{
     loop {}
 }
