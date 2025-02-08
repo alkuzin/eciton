@@ -29,7 +29,7 @@ $(ISO_PATH):
 $(BUILD_PATH):
 	mkdir -p $(BUILD_PATH)
 
-all: $(BUILD_PATH) $(ISO_PATH) $(NAME)
+all: check $(BUILD_PATH) $(ISO_PATH) $(NAME)
 
 clean:
 	rm -f $(OBJS) $(KERNEL_ELF)
@@ -37,7 +37,7 @@ clean:
 fclean: clean
 	rm -f $(ISO_NAME)
 	rm -rf $(BUILD_PATH)/
-	cargo clean --manifest-path kernel/Cargo.toml
+	cargo clean --manifest-path $(KERNEL_PATH)/Cargo.toml
 
 re: fclean all
 
@@ -49,3 +49,15 @@ init:
 	qemu-system-i386 -m 256 -cdrom $(ISO_NAME)
 
 run: build-iso init
+
+check-clippy:
+	cargo clippy --manifest-path $(KERNEL_PATH)/Cargo.toml -- -D warnings -W clippy::all
+
+check: check-clippy
+	cargo check --manifest-path $(KERNEL_PATH)/Cargo.toml
+
+build-doc:
+	cargo doc --document-private-items --manifest-path $(KERNEL_PATH)/Cargo.toml
+
+doc:
+	cargo doc --document-private-items --open --manifest-path $(KERNEL_PATH)/Cargo.toml
