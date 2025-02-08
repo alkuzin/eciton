@@ -18,7 +18,7 @@
 
 /// Number of bytes bytes from the start of the file
 /// to search for the header.
-pub const MULTIBOOT_SEARCH: u32       = 8192;
+pub const MULTIBOOT_SEARCH: u32 = 8192;
 pub const MULTIBOOT_HEADER_ALIGN: u32 = 4;
 
 /// The magic field should contain this.
@@ -85,9 +85,10 @@ pub const MULTIBOOT_INFO_BOOT_LOADER_NAME: u32 = 0x00000200;
 pub const MULTIBOOT_INFO_APM_TABLE: u32 = 0x00000400;
 
 /// Is there video information?
-pub const MULTIBOOT_INFO_VBE_INFO: u32         = 0x00000800;
+pub const MULTIBOOT_INFO_VBE_INFO: u32 = 0x00000800;
 pub const MULTIBOOT_INFO_FRAMEBUFFER_INFO: u32 = 0x00001000;
 
+#[rustfmt::skip]
 pub type MultibootU8  = u8;
 pub type MultibootU16 = u16;
 pub type MultibootU32 = u32;
@@ -95,7 +96,8 @@ pub type MultibootU64 = u64;
 
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
-pub struct MultibootHeader {
+pub struct MultibootHeader
+{
     /// Must be MULTIBOOT_MAGIC - see above.
     pub magic: MultibootU32,
 
@@ -122,7 +124,8 @@ pub struct MultibootHeader {
 /// The symbol table for a.out.
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
-pub struct MultibootAOutSymbolTable {
+pub struct MultibootAOutSymbolTable
+{
     pub tabsize:  MultibootU32,
     pub strsize:  MultibootU32,
     pub addr:     MultibootU32,
@@ -132,7 +135,8 @@ pub struct MultibootAOutSymbolTable {
 /// The section header table for ELF.
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
-pub struct MultibootELFSectionHeaderTable {
+pub struct MultibootELFSectionHeaderTable
+{
     pub num:   MultibootU32,
     pub size:  MultibootU32,
     pub addr:  MultibootU32,
@@ -142,14 +146,17 @@ pub struct MultibootELFSectionHeaderTable {
 /// Union for Multiboot symbol tables.
 #[derive(Clone, Copy)]
 #[repr(C)]
-pub union MultibootSymbolTableUnion {
+pub union MultibootSymbolTableUnion
+{
     pub aout_sym: MultibootAOutSymbolTable,
     pub elf_sec:  MultibootELFSectionHeaderTable,
 }
 
 #[derive(Debug, Clone, Copy)]
 #[repr(u8)]
-pub enum MultibootFramebufferType {
+#[rustfmt::skip]
+pub enum MultibootFramebufferType
+{
     Indexed = 0,
     Rgb     = 1,
     EgaText = 2,
@@ -158,7 +165,8 @@ pub enum MultibootFramebufferType {
 /// Struct for framebuffer palette information.
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
-pub struct FramebufferPalette {
+pub struct FramebufferPalette
+{
     pub addr:       MultibootU32,
     pub num_colors: MultibootU16,
 }
@@ -166,7 +174,8 @@ pub struct FramebufferPalette {
 /// Struct for framebuffer RGB information.
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
-pub struct FramebufferRGB {
+pub struct FramebufferRGB
+{
     pub red_field_position:   MultibootU8,
     pub red_mask_size:        MultibootU8,
     pub green_field_position: MultibootU8,
@@ -177,13 +186,15 @@ pub struct FramebufferRGB {
 
 #[derive(Clone, Copy)]
 #[repr(C)]
-pub union FramebufferUnion {
+pub union FramebufferUnion
+{
     pub palette: FramebufferPalette,
     pub rgb:     FramebufferRGB,
 }
 
 #[repr(C)]
-pub struct MultibootInfo {
+pub struct MultibootInfo
+{
     /// Multiboot info version number.
     pub flags: MultibootU32,
 
@@ -199,7 +210,7 @@ pub struct MultibootInfo {
 
     /// Boot-Module list.
     pub mods_count: MultibootU32,
-    pub mods_addr: MultibootU32,
+    pub mods_addr:  MultibootU32,
 
     pub u: MultibootSymbolTableUnion,
 
@@ -221,26 +232,25 @@ pub struct MultibootInfo {
     pub apm_table: MultibootU32,
 
     /// Video.
-    pub vbe_control_info:  MultibootU32,
-    pub vbe_mode_info:     MultibootU32,
-    pub vbe_mode:          MultibootU16,
-    pub vbe_interface_seg: MultibootU16,
-    pub vbe_interface_off: MultibootU16,
-    pub vbe_interface_len: MultibootU16,
-
+    pub vbe_control_info:   MultibootU32,
+    pub vbe_mode_info:      MultibootU32,
+    pub vbe_mode:           MultibootU16,
+    pub vbe_interface_seg:  MultibootU16,
+    pub vbe_interface_off:  MultibootU16,
+    pub vbe_interface_len:  MultibootU16,
     pub framebuffer_addr:   MultibootU64,
     pub framebuffer_pitch:  MultibootU32,
     pub framebuffer_width:  MultibootU32,
     pub framebuffer_height: MultibootU32,
     pub framebuffer_bpp:    MultibootU8,
     pub framebuffer_type:   MultibootFramebufferType,
-
-    pub framebuffer_union: FramebufferUnion,
+    pub framebuffer_union:  FramebufferUnion,
 }
 
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
-pub struct MultibootColor {
+pub struct MultibootColor
+{
     pub red:   MultibootU8,
     pub green: MultibootU8,
     pub blue:  MultibootU8,
@@ -248,17 +258,19 @@ pub struct MultibootColor {
 
 #[derive(Debug, Clone, Copy)]
 #[repr(u32)]
-pub enum MultibootMemoryType {
-    Available       = 1,
-    Reserved        = 2,
+pub enum MultibootMemoryType
+{
+    Available = 1,
+    Reserved = 2,
     AcpiReclaimable = 3,
-    Nvs             = 4,
-    BadRam          = 5,
+    Nvs = 4,
+    BadRam = 5,
 }
 
 #[derive(Debug, Clone, Copy)]
 #[repr(C, packed)]
-pub struct MultibootMmapEntry {
+pub struct MultibootMmapEntry
+{
     pub size:  MultibootU32,
     pub addr:  MultibootU64,
     pub len:   MultibootU64,
@@ -267,10 +279,11 @@ pub struct MultibootMmapEntry {
 
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
-pub struct MultibootModList {
+pub struct MultibootModList
+{
     /// The memory used goes from bytes ’mod_start’ to ’mod_end-1’ inclusive.
     pub mod_start: MultibootU32,
-    pub mod_end: MultibootU32,
+    pub mod_end:   MultibootU32,
 
     /// Module command line.
     pub cmdline: MultibootU32,
@@ -282,7 +295,8 @@ pub struct MultibootModList {
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
 // APM BIOS info.
-pub struct MultibootApmInfo {
+pub struct MultibootApmInfo
+{
     pub version:     MultibootU16,
     pub cseg:        MultibootU16,
     pub offset:      MultibootU32,
