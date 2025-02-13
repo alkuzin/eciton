@@ -17,51 +17,21 @@
 //! Main kernel module.
 
 pub mod multiboot;
-mod vesa;
-mod gfx;
-pub mod tty;
+pub mod printk;
+mod graphics;
+mod panic;
 
 use multiboot::MultibootInfo;
-use vesa::Vesa;
-
+use graphics::Graphics;
 use crate::printk;
-struct Context<'a> {
-    pub boot_info: &'a MultibootInfo,
-}
 
-impl<'a> Context<'a> {
-    pub fn new(boot_info: &'a MultibootInfo) -> Context<'a> {
-        Context {
-            boot_info,
-        }
-    }
-}
-
-// TODO: make Cluster as trait in order to register it
-struct Cluster<'a> {
-    context: Context<'a>,
-    vesa:    Vesa,
-}
-
-impl<'a> Cluster<'a> {
-    pub fn new(boot_info: &'a MultibootInfo) -> Cluster<'a> {
-        let context = Context::new(boot_info);
-
-        Cluster {
-            context,
-            vesa: Default::default(),
-        }
-    }
-
-    pub fn init(&mut self) {
-        self.vesa = Vesa::new(self.context.boot_info);
-        tty::WRITER.lock().set(self.vesa);
-    }
-}
-
-pub fn setup_kernel(boot_info: &MultibootInfo) {
-    let mut cluster = Cluster::new(boot_info);
-    cluster.init();
+/// Initialize kernel.
+///
+/// # Parameters
+/// - `boot_info` - given multiboot info structure.
+pub fn init_kernel(boot_info: &MultibootInfo) {
+    let gfx = Graphics::new(boot_info);
+    printk::init(gfx);
 
     printk!("eciton exokernel v{}", "0.0.0");
 }
