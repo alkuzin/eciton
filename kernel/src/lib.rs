@@ -20,6 +20,7 @@
 #![no_main]                     // Do not use the standard main function.
 #![allow(clippy::empty_loop)]   // Ignore empty loop.
 #![allow(dead_code)]            // Allow unused values.
+#![feature(c_variadic)]
 
 mod eciton;
 
@@ -29,8 +30,7 @@ use core::panic::PanicInfo;
 
 /// Kernel entry point.
 #[unsafe(no_mangle)]
-extern "C" fn kmain(magic: u32, boot_info: &'static MultibootInfo) -> !
-{
+extern "C" fn kmain(magic: u32, boot_info: &MultibootInfo) -> ! {
     // Check that multiboot magic number is correct
     assert_eq!(magic, MULTIBOOT_BOOTLOADER_MAGIC);
     eciton::setup_kernel(boot_info);
@@ -38,9 +38,20 @@ extern "C" fn kmain(magic: u32, boot_info: &'static MultibootInfo) -> !
     loop {}
 }
 
+// TODO:
 /// Custom kernel panic handler.
 #[panic_handler]
-fn panic(_: &PanicInfo) -> !
-{
+fn panic(info: &PanicInfo) -> ! {
+    let message  = info.message().as_str().unwrap();
+    let location = info.location().unwrap();
+
+    printk!(
+        "[panic]: file: {} line: {} column: {}\nmessage: \"{}\"\n",
+        location.file(),
+        location.line(),
+        location.column(),
+        message
+    );
+
     loop {}
 }
