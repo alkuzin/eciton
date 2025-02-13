@@ -14,42 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-//! Graphics module. Contains declarations for RGB colors and
-//! other graphics related functions.
+//! Font for debug output.
 
-/// RGB color type.
-pub type Rgb = u32;
+/// Number of bytes in font.
+pub const SIZE: usize = 4096;
 
-/// Make RGB color from red, green and blue components.
-///
-/// # Usage
-/// ```rust
-/// let white_color: Rgb = rgb!(255, 255, 255);
-/// ```
-#[macro_export]
-macro_rules! rgb {
-    ($red:expr, $green:expr, $blue:expr) => {
-        (($red as u32) << 16) | (($green as u32) << 8) | ($blue as u32)
-    };
-}
+/// Font character height in pixels.
+pub const CHAR_HEIGHT: u32 = 16;
 
-/// Standard color enumeration.
-#[repr(u32)]
-pub enum Color
-{
-    White = rgb!(0xFF, 0xFF, 0xFF),
-    Black = rgb!(0x00, 0x00, 0x00),
-    Red   = rgb!(0xFF, 0x00, 0x00),
-    Green = rgb!(0x00, 0xFF, 0x00),
-    Blue  = rgb!(0x00, 0x00, 0xFF),
-    Gray  = rgb!(0xBF, 0xBF, 0xBF),
-}
+/// Font character width in pixels.
+pub const CHAR_WIDTH: u32 = 8;
 
-pub const FONT_SIZE       : usize = 4096;
-pub const FONT_CHAR_HEIGHT: u32   = 16;
-pub const FONT_CHAR_WIDTH : u32   = 8;
-
-pub static FONT: &[u8;FONT_SIZE] = &[
+/// Kernel font in bytes representation.
+pub static FONT: &[u8;SIZE] = &[
      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
      0x00, 0x00, 0x00, 0x7E, 0x81, 0xA5, 0x81, 0x81, 0xBD, 0x99, 0x81, 0x81, 0x7E, 0x00, 0x00,
      0x00, 0x00, 0x00, 0x00, 0x7E, 0xFF, 0xDB, 0xFF, 0xFF, 0xC3, 0xE7, 0xFF, 0xFF, 0x7E, 0x00,
