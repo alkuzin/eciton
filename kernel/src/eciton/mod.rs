@@ -19,20 +19,49 @@
 pub mod multiboot;
 mod vesa;
 mod gfx;
+pub mod tty;
 
-use vesa::Vesa;
 use multiboot::MultibootInfo;
-use gfx::{Color, Rgb};
+use vesa::Vesa;
 
+use crate::printk;
+struct Context<'a> {
+    pub boot_info: &'a MultibootInfo,
+}
 
-pub fn setup_kernel(boot_info: &MultibootInfo)
-{
-    let vesa = Vesa::new(boot_info);
+impl<'a> Context<'a> {
+    pub fn new(boot_info: &'a MultibootInfo) -> Context<'a> {
+        Context {
+            boot_info,
+        }
+    }
+}
 
-    for i in 0..300 {
-        vesa.put_pixel(i, i, Color::White as u32);
-        vesa.put_pixel(300, i, Color::Red as u32);
+// TODO: make Cluster as trait in order to register it
+struct Cluster<'a> {
+    context: Context<'a>,
+    vesa:    Vesa,
+}
+
+impl<'a> Cluster<'a> {
+    pub fn new(boot_info: &'a MultibootInfo) -> Cluster<'a> {
+        let context = Context::new(boot_info);
+
+        Cluster {
+            context,
+            vesa: Default::default(),
+        }
     }
 
-    vesa.draw_char('A', 500, 500, Color::Green as Rgb);
+    pub fn init(&mut self) {
+        self.vesa = Vesa::new(self.context.boot_info);
+        tty::WRITER.lock().set(self.vesa);
+    }
+}
+
+pub fn setup_kernel(boot_info: &MultibootInfo) {
+    let mut cluster = Cluster::new(boot_info);
+    cluster.init();
+
+    printk!("eciton exokernel v{}", "0.0.0");
 }
