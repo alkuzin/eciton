@@ -14,28 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-//! Kernel entry point.
+//! Kernel panic function.
 
-#![no_std]                      // Do not use the standard library.
-#![no_main]                     // Do not use the standard main function.
-#![allow(clippy::empty_loop)]   // Ignore empty loop.
-#![allow(dead_code)]            // Allow unused values.
+use core::panic::PanicInfo;
+use crate::printk;
 
-mod eciton;
-use eciton::multiboot::{MULTIBOOT_BOOTLOADER_MAGIC, MultibootInfo};
-
-/// Kernel entry point.
+/// Custom kernel panic handler.
 ///
 /// # Parameters
-/// - `magic`     - given multiboot magic number.
-/// - `boot_info` - given multiboot info structure.
-#[unsafe(no_mangle)]
-extern "C" fn kmain(magic: u32, boot_info: &MultibootInfo) -> ! {
-    // Check that multiboot magic number is correct
-    assert_eq!(magic, MULTIBOOT_BOOTLOADER_MAGIC);
+/// - `info` - given panic information struct.
+#[panic_handler]
+fn panic(info: &PanicInfo) -> ! {
+    let message  = info.message().as_str().unwrap();
+    let location = info.location().unwrap();
 
-    // Initialize the kernel
-    eciton::init_kernel(boot_info);
+    printk!(
+        "[panic]: file: {} line: {} column: {}\nmessage: \"{}\"\n",
+        location.file(),
+        location.line(),
+        location.column(),
+        message
+    );
 
     // Halt kernel
     loop {}
