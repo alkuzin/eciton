@@ -61,3 +61,6 @@ build-doc:
 
 doc:
 	cargo doc --document-private-items --open --manifest-path $(KERNEL_PATH)/Cargo.toml
+
+debug:
+	qemu-system-i386 -s -S -m 256 -cdrom $(ISO_NAME) & gdb $(KERNEL_ELF) -ex "target remote localhost:1234" -tui
