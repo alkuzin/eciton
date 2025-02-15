@@ -21,9 +21,10 @@ pub mod printk;
 mod graphics;
 mod panic;
 
-use multiboot::MultibootInfo;
-use graphics::Graphics;
-use crate::printk;
+use crate::{
+    eciton::{ multiboot::MultibootInfo, graphics::Graphics },
+    printk
+};
 
 /// Initialize kernel.
 ///

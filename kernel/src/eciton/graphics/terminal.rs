@@ -16,10 +16,8 @@
 
 //! Contains kernel terminal declaration.
 
-use core::ptr;
-
-use crate::eciton::graphics;
-use graphics::{Rgb, Graphics, font};
+use crate::eciton::graphics::{Rgb, Color, Graphics, font};
+use core::ptr::write_bytes;
 
 /// Default tabulation width.
 const TAB_WIDTH: u32 = 4;
@@ -32,11 +30,11 @@ pub struct Terminal {
     /// Screen height.
     height: i32,
     /// Screen width.
-    width:  i32,
+    width: i32,
     /// X position of the cursor.
-    x_pos:  i32,
+    x_pos: i32,
     /// Y position of the cursor.
-    y_pos:  i32,
+    y_pos: i32,
     /// Foreground color.
     pub fg: Rgb,
     /// Background color.
@@ -46,21 +44,22 @@ pub struct Terminal {
 impl Terminal {
     /// Scroll screen.
     fn scroll(&self) {
-        let size         = self.gfx.fb.height * self.gfx.fb.pitch;
-        let buffer       = self.gfx.fb.addr as *mut u32;
+        let fb     = self.gfx.fb;
+        let size   = fb.height * fb.pitch;
+        let buffer = fb.addr as *mut u32;
         let mut pos: u32;
 
         for i in 0..size {
-            pos = i + self.gfx.fb.width * graphics::font::CHAR_HEIGHT;
+            pos = i + fb.width * font::CHAR_HEIGHT;
             unsafe {
                 *buffer.offset(i as isize) = *buffer.offset(pos as isize);
             }
         }
 
-        pos = size - self.gfx.fb.width * graphics::font::CHAR_HEIGHT;
+        pos = size - fb.width * font::CHAR_HEIGHT;
 
         unsafe {
-            ptr::write_bytes(buffer.offset(pos as isize), 0, (size - pos) as usize);
+            write_bytes(buffer.offset(pos as isize), 0, (size - pos) as usize);
         }
     }
 
@@ -72,8 +71,8 @@ impl Terminal {
         self.gfx    = gfx;
         self.x_pos  = 0;
         self.y_pos  = 0;
-        self.fg     = graphics::Color::White as u32;
-        self.bg     = graphics::Color::Black as u32;
+        self.fg     = Color::White as u32;
+        self.bg     = Color::Black as u32;
         self.height = self.gfx.fb.height as i32;
         self.width  = self.gfx.fb.width as i32;
     }
@@ -105,14 +104,30 @@ impl Terminal {
             // Handle tab character
             '\t' => {
                 for _ in 0..TAB_WIDTH {
-                    self.gfx.draw_char(c, self.x_pos as u32, self.y_pos as u32, fg, bg, true);
+                    self.gfx.draw_char(
+                        c,
+                        self.x_pos as u32,
+                        self.y_pos as u32,
+                        fg,
+                        bg,
+                        true
+                    );
+
                     self.x_pos += font::CHAR_WIDTH as i32;
                 }
             },
             // Handle other characters
             _ => {
                 if c == ' ' || c.is_ascii_graphic() {
-                    self.gfx.draw_char(c, self.x_pos as u32, self.y_pos as u32, fg, bg, true);
+                    self.gfx.draw_char(
+                        c,
+                        self.x_pos as u32,
+                        self.y_pos as u32,
+                        fg,
+                        bg,
+                        true
+                    );
+
                     self.x_pos += font::CHAR_WIDTH as i32;
                 }
             }
