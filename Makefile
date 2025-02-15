@@ -3,25 +3,28 @@ ASM_FLAGS    = --32
 LINKER 		 = ld
 LINKER_FLAGS = -z noexecstack -melf_i386
 
-KERNEL_PATH = kernel
-BUILD_PATH  = build
-ISO_PATH    = $(BUILD_PATH)/iso
-ARCH_PATH   = $(KERNEL_PATH)/arch
-TARGET_PATH = $(ARCH_PATH)/i686/boot
+SELECTED_TARGET = i686
 
-NAME 		= eciton
-ISO_NAME    = $(BUILD_PATH)/$(NAME).iso
-KERNEL_ELF  = $(ISO_PATH)/boot/$(NAME).elf
+KERNEL_PATH  = kernel
+BUILD_PATH   = build
+ISO_PATH     = $(BUILD_PATH)/iso
+ARCH_PATH    = $(KERNEL_PATH)/src/eciton/arch
+BOOT_PATH    = $(ARCH_PATH)/$(SELECTED_TARGET)/boot
+TARGETS_PATH = targets/arch/$(SELECTED_TARGET)
 
-KERNEL_STATIC_LIB = $(KERNEL_PATH)/target/i686-unknown-none/release/libeciton.a
+NAME 	   = eciton
+ISO_NAME   = $(BUILD_PATH)/$(NAME).iso
+KERNEL_ELF = $(ISO_PATH)/boot/$(NAME).elf
 
-OBJS = $(TARGET_PATH)/boot.o \
+KERNEL_STATIC_LIB = $(KERNEL_PATH)/target/$(SELECTED_TARGET)-unknown-none/release/libeciton.a
+
+OBJS = $(BOOT_PATH)/boot.o \
 	   $(KERNEL_STATIC_LIB)
 
 $(NAME):
 	cargo build --manifest-path $(KERNEL_PATH)/Cargo.toml --release
-	$(ASM) $(ASM_FLAGS) -o $(TARGET_PATH)/boot.o $(TARGET_PATH)/boot.asm
-	$(LINKER) $(LINKER_FLAGS) -o $(KERNEL_ELF) -T $(TARGET_PATH)/linker.ld $(OBJS)
+	$(ASM) $(ASM_FLAGS) -o $(BOOT_PATH)/boot.o $(BOOT_PATH)/boot.asm
+	$(LINKER) $(LINKER_FLAGS) -o $(KERNEL_ELF) -T $(BOOT_PATH)/linker.ld $(OBJS)
 
 $(ISO_PATH):
 	mkdir -p $(ISO_PATH)/boot/grub/
@@ -42,7 +45,7 @@ fclean: clean
 re: fclean all
 
 build-iso: all
-	cp $(TARGET_PATH)/../grub.cfg $(ISO_PATH)/boot/grub/grub.cfg
+	cp $(TARGETS_PATH)/grub.cfg $(ISO_PATH)/boot/grub/grub.cfg
 	grub-mkrescue -o $(ISO_NAME) $(ISO_PATH)
 
 init:
