@@ -14,29 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-//! Kernel entry point.
+//! Eciton API main module.
 
 #![no_std]                      // Do not use the standard library.
 #![no_main]                     // Do not use the standard main function.
 #![allow(clippy::empty_loop)]   // Ignore empty loop.
 #![allow(dead_code)]            // Allow unused values.
 
-mod eciton;
-use exo::kernel::multiboot::{MULTIBOOT_BOOTLOADER_MAGIC, MultibootInfo};
+pub mod kernel;
 
-/// Kernel entry point.
-///
-/// # Parameters
-/// - `magic`     - given multiboot magic number.
-/// - `boot_info` - given multiboot info structure.
-#[unsafe(no_mangle)]
-extern "C" fn kmain(magic: u32, boot_info: &MultibootInfo) -> ! {
-    // Check that multiboot magic number is correct
-    assert_eq!(magic, MULTIBOOT_BOOTLOADER_MAGIC);
-
-    // Initialize the kernel
-    eciton::init_kernel(boot_info);
-
-    // Halt kernel
-    loop {}
-}
+// TODO:
+#[cfg(feature = "libos")]
+pub mod libos;

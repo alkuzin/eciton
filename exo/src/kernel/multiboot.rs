@@ -145,7 +145,6 @@ pub union MultibootSymbolTableUnion {
 
 #[derive(Debug, Clone, Copy)]
 #[repr(u8)]
-#[rustfmt::skip]
 pub enum MultibootFramebufferType {
     Indexed = 0,
     Rgb     = 1,
@@ -230,6 +229,7 @@ pub struct MultibootColor {
     pub blue:  MultibootU8,
 }
 
+/// Multiboot memory map entry type.
 #[derive(Debug, Clone, Copy)]
 #[repr(u32)]
 pub enum MultibootMemoryType {
@@ -240,6 +240,7 @@ pub enum MultibootMemoryType {
     BadRam          = 5,
 }
 
+/// Multiboot memory map info.
 #[derive(Debug, Clone, Copy)]
 #[repr(C, packed)]
 pub struct MultibootMmapEntry {
@@ -249,6 +250,7 @@ pub struct MultibootMmapEntry {
     pub mtype: MultibootMemoryType,
 }
 
+/// Multiboot module info.
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
 pub struct MultibootModList {
@@ -261,9 +263,9 @@ pub struct MultibootModList {
     pub pad: MultibootU32,
 }
 
+// APM BIOS info.
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
-// APM BIOS info.
 pub struct MultibootApmInfo {
     pub version:     MultibootU16,
     pub cseg:        MultibootU16,
