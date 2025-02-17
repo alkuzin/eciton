@@ -23,6 +23,8 @@ name = "ecos"
 version = "0.0.0"
 dependencies = [
  "exo",
+ "lazy_static",
+ "spin",
 ]
 
 [[package]]

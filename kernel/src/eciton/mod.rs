@@ -16,27 +16,26 @@
 
 //! Main kernel module.
 
-// TODO: move graphics, framebuffer, terminal and printk
-// to EcOS
 pub mod printk;
-mod graphics;
 mod panic;
+mod arch;
+mod uart;
 
 use exo::kernel::multiboot::MultibootInfo;
-
-use crate::{
-    eciton::graphics::Graphics,
-    printk
-};
+use crate::{eciton::uart::Uart, printk};
 
 /// Initialize kernel.
 ///
 /// # Parameters
 /// - `boot_info` - given multiboot info structure.
-pub fn init_kernel(boot_info: &MultibootInfo) {
-    let gfx = Graphics::new(boot_info);
-    printk::init(gfx);
+pub fn init_kernel(boot_info: &'static MultibootInfo) {
+    // TODO: register & init libOS.
+    let _ = Uart::init();
+    printk!("[  OK  ]: Initialized UART driver");
 
-    // TODO: register & init libOS
-    printk!("[eciton] msg from ecos_init(): {}", ecos::ecos_init().unwrap());
+    printk!("[  OK  ]: Set multiboot info for EcOS libOS");
+    ecos::set_multiboot_info(boot_info);
+
+    printk!("[  OK  ]: Initializing libOS");
+    ecos::libos_init()
 }

@@ -30,7 +30,7 @@ use exo::kernel::multiboot::{MULTIBOOT_BOOTLOADER_MAGIC, MultibootInfo};
 /// - `magic`     - given multiboot magic number.
 /// - `boot_info` - given multiboot info structure.
 #[unsafe(no_mangle)]
-extern "C" fn kmain(magic: u32, boot_info: &MultibootInfo) -> ! {
+extern "C" fn kmain(magic: u32, boot_info: &'static MultibootInfo) -> ! {
     // Check that multiboot magic number is correct
     assert_eq!(magic, MULTIBOOT_BOOTLOADER_MAGIC);
 

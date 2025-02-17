@@ -49,7 +49,7 @@ build-iso: all
 	grub-mkrescue -o $(ISO_NAME) $(ISO_PATH)
 
 init:
-	qemu-system-i386 -m 256 -cdrom $(ISO_NAME)
+	qemu-system-i386 -m 256 -cdrom $(ISO_NAME) -serial stdio
 
 run: build-iso init
 
