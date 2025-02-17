@@ -21,7 +21,24 @@
 #![allow(clippy::empty_loop)]   // Ignore empty loop.
 #![allow(dead_code)]            // Allow unused values.
 
+mod ecos;
 
-pub fn ecos_init() -> Result<&'static str, &'static str> {
-    Ok("Initialized EcOS successfully")
+use exo::kernel::{graphics::Framebuffer, multiboot::MultibootInfo};
+use ecos::{graphics, printk::init_printk};
+
+static mut BOOT_INFO: Option<&MultibootInfo> = None;
+
+/// CRUTCH: should be replaced with normal syscall!
+pub fn set_multiboot_info(boot_info: &'static MultibootInfo) {
+    unsafe { BOOT_INFO = Some(boot_info); }
+}
+
+pub fn libos_init() {
+    // TODO: syscall to get framebuffer
+    // exo::libos::get_framebuffer(&mut fb);
+    let fb  = Framebuffer::new(unsafe {BOOT_INFO.unwrap()});
+    let gfx = graphics::Graphics::new(fb);
+    init_printk(gfx);
+
+    printk!("initialized EcOS");
 }
