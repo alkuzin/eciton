@@ -19,7 +19,8 @@
 
 pub mod terminal;
 pub mod font;
-use crate::eciton::MultibootInfo;
+
+use exo::kernel::graphics::Framebuffer;
 
 
 /// RGB color type.
@@ -49,40 +50,6 @@ pub enum Color {
     Gray  = rgb!(0xBF, 0xBF, 0xBF),
 }
 
-/// VESA framebuffer struct.
-#[derive(Debug, Clone, Copy, Default)]
-pub struct Framebuffer {
-    /// Framebuffer physical address.
-    pub addr: u64,
-    /// Number of bytes in a single row of the framebuffer.
-    pub pitch: u32,
-    /// Y-resolution.
-    pub width: u32,
-    /// X-resolution.
-    pub height: u32,
-    /// Bytes per pixel.
-    pub bpp: u8,
-}
-
-impl Framebuffer {
-    /// Construct new Framebuffer object.
-    ///
-    /// # Parameters
-    /// - `boot_info` - given multiboot info structure.
-    ///
-    /// # Returns
-    /// New Framebuffer object.
-    pub fn new(boot_info: &MultibootInfo) -> Framebuffer {
-        Framebuffer {
-            addr:   boot_info.framebuffer_addr,
-            pitch:  boot_info.framebuffer_pitch,
-            width:  boot_info.framebuffer_width,
-            height: boot_info.framebuffer_height,
-            bpp:    boot_info.framebuffer_bpp,
-        }
-    }
-}
-
 /// Graphics handeling struct.
 #[derive(Default, Clone, Copy)]
 pub struct Graphics {
@@ -98,8 +65,8 @@ impl Graphics {
     ///
     /// # Returns
     /// New Graphics object.
-    pub fn new(boot_info: &MultibootInfo) -> Graphics {
-        Graphics { fb: Framebuffer::new(boot_info) }
+    pub fn new(fb: Framebuffer) -> Graphics {
+        Graphics { fb }
     }
 
     /// Put pixel on the screen.

@@ -17,3 +17,4 @@
 //! Kernel API module.
 
 pub mod multiboot;
+pub mod graphics;

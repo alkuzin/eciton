@@ -16,7 +16,7 @@
 
 //! Contains kernel terminal declaration.
 
-use crate::eciton::graphics::{Rgb, Color, Graphics, font};
+use crate::ecos::graphics::{Rgb, Color, Graphics, font};
 use core::ptr::write_bytes;
 
 /// Default tabulation width.
