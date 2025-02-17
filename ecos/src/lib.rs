@@ -14,29 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-//! Main kernel module.
+//! EcOS - default libOS entry point.
 
-// TODO: move graphics, framebuffer, terminal and printk
-// to EcOS
-pub mod printk;
-mod graphics;
-mod panic;
+#![no_std]                      // Do not use the standard library.
+#![no_main]                     // Do not use the standard main function.
+#![allow(clippy::empty_loop)]   // Ignore empty loop.
+#![allow(dead_code)]            // Allow unused values.
 
-use exo::kernel::multiboot::MultibootInfo;
 
-use crate::{
-    eciton::graphics::Graphics,
-    printk
-};
-
-/// Initialize kernel.
-///
-/// # Parameters
-/// - `boot_info` - given multiboot info structure.
-pub fn init_kernel(boot_info: &MultibootInfo) {
-    let gfx = Graphics::new(boot_info);
-    printk::init(gfx);
-
-    // TODO: register & init libOS
-    printk!("[eciton] msg from ecos_init(): {}", ecos::ecos_init().unwrap());
+pub fn ecos_init() -> Result<&'static str, &'static str> {
+    Ok("Initialized EcOS successfully")
 }
