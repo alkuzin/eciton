@@ -2,6 +2,7 @@
 target/
 build/
 iso/
+tmp/
 *.txt
 *.iso
 *.o
