@@ -1,0 +1,9 @@
+.vscode/
+target/
+build/
+iso/
+tmp/
+*.txt
+*.iso
+*.o
+*.a
