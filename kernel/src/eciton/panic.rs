@@ -36,6 +36,6 @@ fn panic(info: &PanicInfo) -> ! {
         message
     );
 
-    // Halt kernel
+    // Halt kernel.
     loop {}
 }

@@ -16,4 +16,5 @@
 
 //! i686 arch main module.
 
+pub mod gdt;
 pub mod io;
