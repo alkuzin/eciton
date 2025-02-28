@@ -17,14 +17,20 @@
 //! Main kernel module. Responsible for initializing kernel components.
 
 pub mod multiboot;
+pub mod printk;
 pub mod panic;
+mod drivers;
 mod arch;
 use multiboot::MultibootInfo;
+
+use drivers::uart::Uart;
+use crate::printk;
 
 /// Initialize kernel.
 ///
 /// # Parameters
 /// - `boot_info` - given multiboot info structure.
 pub fn init_kernel(_boot_info: &'static MultibootInfo) {
-
+    let _ = Uart::init();
+    printk!("[  OK  ]: Initialized UART driver");
 }
