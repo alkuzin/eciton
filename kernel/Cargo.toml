@@ -1,0 +1,39 @@
+# Eciton - experimental exokernel.
+# Copyright (C) 2025 Alexander (@alkuzin).
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# Project package info section.
+[package]
+name    = "eciton"
+version = "0.0.0"
+edition = "2024"
+
+# Project library settings section.
+[lib]
+# Compile project to a static library.
+crate-type = ["staticlib"]
+
+# Development profile configuration section.
+[profile.dev]
+# Abort immediately instead of unwinding on panic.
+panic = "abort"
+
+# Release profile configuration section.
+[profile.release]
+# Abort immediately instead of unwinding on panic.
+panic = "abort"
+
+# Project dependencies section.
+[dependencies]
