@@ -17,13 +17,25 @@
 //! Kernel panic function.
 
 use core::panic::PanicInfo;
+use crate::printk;
 
 /// Custom kernel panic handler.
 ///
 /// # Parameters
 /// - `info` - given panic information struct.
 #[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
+fn panic(info: &PanicInfo) -> ! {
+    let message  = info.message().as_str().unwrap();
+    let location = info.location().unwrap();
+
+    printk!(
+        "[panic]: file: {} line: {} column: {}\nmessage: \"{}\"\n",
+        location.file(),
+        location.line(),
+        location.column(),
+        message
+    );
+
     // Halt kernel
     loop {}
 }
