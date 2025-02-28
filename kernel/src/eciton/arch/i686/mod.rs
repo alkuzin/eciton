@@ -15,3 +15,5 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 //! i686 arch main module.
+
+pub mod io;
