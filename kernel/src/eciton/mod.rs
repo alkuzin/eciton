@@ -20,6 +20,7 @@ pub mod multiboot;
 pub mod printk;
 pub mod panic;
 mod drivers;
+mod debug;
 mod arch;
 
 use crate::{
@@ -27,8 +28,7 @@ use crate::{
         arch::i686::{gdt, idt},
         drivers::uart::Uart,
         multiboot::MultibootInfo
-    },
-    pr_ok
+    }, pr_ok
 };
 
 /// Initialize kernel.
@@ -37,13 +37,13 @@ use crate::{
 /// - `boot_info` - given multiboot info structure.
 pub fn init_kernel(_boot_info: &'static MultibootInfo) {
     let _ = Uart::init();
-    pr_ok!("[  OK  ]: Initialized UART driver");
+    pr_ok!("Initialized UART driver");
 
     gdt::init();
-    pr_ok!("[  OK  ]: Initialized Global Descriptor Table");
+    pr_ok!("Initialized Global Descriptor Table");
 
     idt::init();
-    pr_ok!("[  OK  ]: Initialized Interrupt Descriptor Table");
-    // TODO: add kernel debug functions (read/write register, kdump)
-    // TODO: add registers output during kernel panic
+    pr_ok!("Initialized Interrupt Descriptor Table");
+
+    // TODO: add kernel debug functions (kdump)
 }
