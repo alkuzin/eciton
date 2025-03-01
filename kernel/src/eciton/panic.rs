@@ -25,16 +25,24 @@ use crate::printk;
 /// - `info` - given panic information struct.
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    let message  = info.message().as_str().unwrap();
+    let message  = info.message().as_str().unwrap_or("Unknown panic");
     let location = info.location().unwrap();
 
     printk!(
-        "[panic]: file: {} line: {} column: {}\nmessage: \"{}\"\n",
+        "[KERNEL PANIC] Panic occured in file: '{}' on line: {} at column: {}",
         location.file(),
         location.line(),
         location.column(),
-        message
     );
+
+    // The "EXCEPTION" message is used to signal panic! to not
+    // print panic messages at all, because this macro can't
+    // print formatted panic message in case of exceptions.
+    // For displaying detailed panic messages in case of exception,
+    // panic! is used along with printk! macro.
+    if !message.starts_with("EXCEPTION") {
+        printk!("Message: {}", message);
+    }
 
     // Halt kernel.
     loop {}
