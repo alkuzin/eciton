@@ -35,7 +35,8 @@ KERNEL_ELF 		  = $(ISO_PATH)/boot/$(NAME).elf
 KERNEL_STATIC_LIB = $(KERNEL_PATH)/target/$(SELECTED_TARGET)-unknown-none/debug/libeciton.a
 
 ASM_SRC  = $(ASM_PATH)/boot \
-		   $(ASM_PATH)/gdt_flush
+		   $(ASM_PATH)/gdt_flush \
+		   $(ASM_PATH)/idt_flush
 ASM_SRCS = $(addsuffix .asm, $(ASM_SRC))
 ASM_OBJS = $(addsuffix .o,   $(ASM_SRC))
 

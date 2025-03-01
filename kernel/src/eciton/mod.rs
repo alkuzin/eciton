@@ -27,6 +27,7 @@ use crate::{
         multiboot::MultibootInfo,
         drivers::uart::Uart,
         arch::i686::gdt,
+        arch::i686::idt,
     },
     printk
 };
@@ -41,7 +42,9 @@ pub fn init_kernel(_boot_info: &'static MultibootInfo) {
 
     gdt::init();
     printk!("[  OK  ]: Initialized Global Descriptor Table");
-    // TODO: add IDT
+
+    idt::init();
+    printk!("[  OK  ]: Initialized Interrupt Descriptor Table");
     // TODO: add pr_info() pr_error() ...
     // TODO: add kernel debug functions (read/write register, kdump)
     // TODO: add registers output during kernel panic
