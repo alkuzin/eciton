@@ -20,9 +20,9 @@ use crate::{printk, putk};
 use core::fmt;
 
 /// GDT segment structure in 32-bit mode.
-#[repr(C, packed)]
 #[derive(Debug, Clone, Copy)]
-struct GdtEntry {
+#[repr(C, packed)]
+struct Entry {
     /// Maximum addressable unit.
     pub limit: u16,
     /// Linear address where the segment begins.
@@ -39,7 +39,7 @@ struct GdtEntry {
 
 /// GDT pointer.
 #[repr(C, packed)]
-struct GdtPointer {
+struct Pointer {
     /// GDT size - 1.
     size: u16,
     /// Linear address of GDT.
@@ -76,7 +76,7 @@ const GDT_BASE: u32 = 0x800;
 const GDT_ENTRIES: usize = 7;
 
 /// Empty entry.
-const NULL_ENTRY: GdtEntry = GdtEntry {
+const NULL_ENTRY: Entry = Entry {
     limit:      0,
     base_low:   0,
     base_mid:   0,
@@ -86,10 +86,10 @@ const NULL_ENTRY: GdtEntry = GdtEntry {
 };
 
 /// Global Descriptor Table.
-static mut GDT: [GdtEntry;GDT_ENTRIES] = [NULL_ENTRY;GDT_ENTRIES];
+static mut GDT: [Entry;GDT_ENTRIES] = [NULL_ENTRY;GDT_ENTRIES];
 
 /// Global Descriptor Table pointer.
-static mut GDT_PTR: *mut GdtPointer = GDT_BASE as *mut GdtPointer;
+static mut GDT_PTR: *mut Pointer = GDT_BASE as *mut Pointer;
 
 /// Set the GDT entry.
 ///
@@ -143,7 +143,7 @@ pub fn init() {
     unsafe {
         // Set GDT pointer.
         let gdt_ptr    = GDT_PTR.as_mut().unwrap();
-        gdt_ptr.size   = (size_of::<GdtEntry>() * GDT_ENTRIES - 1) as u16;
+        gdt_ptr.size   = (size_of::<Entry>() * GDT_ENTRIES - 1) as u16;
         gdt_ptr.offset = (&raw const GDT as *const _) as u32;
 
         // Update GDT.
@@ -167,7 +167,7 @@ fn print_gdt() {
 }
 
 /// Custom debug output for GDT pointer.
-impl fmt::Debug for GdtPointer {
+impl fmt::Debug for Pointer {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let size   = self.size;
         let offset = self.offset;
