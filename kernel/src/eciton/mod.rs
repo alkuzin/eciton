@@ -24,12 +24,11 @@ mod arch;
 
 use crate::{
     eciton::{
-        multiboot::MultibootInfo,
+        arch::i686::{gdt, idt},
         drivers::uart::Uart,
-        arch::i686::gdt,
-        arch::i686::idt,
+        multiboot::MultibootInfo
     },
-    printk
+    pr_ok
 };
 
 /// Initialize kernel.
@@ -38,14 +37,13 @@ use crate::{
 /// - `boot_info` - given multiboot info structure.
 pub fn init_kernel(_boot_info: &'static MultibootInfo) {
     let _ = Uart::init();
-    printk!("[  OK  ]: Initialized UART driver");
+    pr_ok!("[  OK  ]: Initialized UART driver");
 
     gdt::init();
-    printk!("[  OK  ]: Initialized Global Descriptor Table");
+    pr_ok!("[  OK  ]: Initialized Global Descriptor Table");
 
     idt::init();
-    printk!("[  OK  ]: Initialized Interrupt Descriptor Table");
-    // TODO: add pr_info() pr_error() ...
+    pr_ok!("[  OK  ]: Initialized Interrupt Descriptor Table");
     // TODO: add kernel debug functions (read/write register, kdump)
     // TODO: add registers output during kernel panic
 }

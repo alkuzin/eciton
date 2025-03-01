@@ -17,7 +17,6 @@
 //! Contains kernel log functions.
 
 use crate::eciton::drivers::uart::Uart;
-
 use lazy_static::lazy_static;
 use spin::Mutex;
 use core::fmt;
@@ -46,7 +45,9 @@ macro_rules! putk {
 /// Formats and prints data with '\n' in the end.
 #[macro_export]
 macro_rules! printk {
+    // Empty message.
     () => ($crate::putk!("\n"));
+    // Default case for any other arguments.
     ($($arg:tt)*) => ($crate::putk!("{}\n", format_args!($($arg)*)));
 }
 
@@ -57,4 +58,57 @@ macro_rules! printk {
 pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
     SERIAL.lock().write_fmt(args).unwrap();
+}
+
+/// Log informational messages that indicate successful operations or states.
+///
+/// # Examples
+///
+/// ```rust
+/// pr_ok!("Operation completed successfully.");
+/// pr_ok!("Value is: {}", value);
+/// ```
+///
+/// The output will be formatted as:
+/// ```plaintext
+/// [  OK  ]: Operation completed successfully.
+/// [  OK  ]: Value is: 42
+/// ```
+#[macro_export]
+macro_rules! pr_ok {
+    ($($arg:tt)*) => ($crate::putk!("[  OK  ]: {}\n", format_args!($($arg)*)));
+}
+
+/// Log error messages that indicate a failure or an unexpected condition.
+///
+/// # Examples
+///
+/// ```rust
+/// pr_err!("An error occurred: {}", error_message);
+/// ```
+///
+/// The output will be formatted as:
+/// ```plaintext
+/// [ERROR]: An error occurred: File not found
+/// ```
+#[macro_export]
+macro_rules! pr_err {
+    ($($arg:tt)*) => ($crate::putk!("[ERROR]: {}\n", format_args!($($arg)*)));
+}
+
+/// Log messages that provide detailed information useful for debugging purposes.
+///
+/// # Examples
+///
+/// ```rust
+/// pr_debug!("Entering function: {}", function_name);
+/// ```
+///
+/// The output will be formatted as:
+/// ```plaintext
+/// [DEBUG]: Entering function: my_function
+/// ```
+#[macro_export]
+macro_rules! pr_debug {
+    ($($arg:tt)*) => ($crate::putk!("[DEBUG]: {}\n", format_args!($($arg)*)));
 }
