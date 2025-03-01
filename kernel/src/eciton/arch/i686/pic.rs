@@ -18,20 +18,20 @@
 
 use super::io::outb;
 
-const MASTER_PIC_CMD: u16  = 0x20;
-const MASTER_PIC_DATA: u16 = 0x21;
-const SLAVE_PIC_CMD: u16   = 0xA0;
-const SLAVE_PIC_DATA: u16  = 0xA1;
+pub const MASTER_PIC_CMD: u16  = 0x20;
+pub const MASTER_PIC_DATA: u16 = 0x21;
+pub const SLAVE_PIC_CMD: u16   = 0xA0;
+pub const SLAVE_PIC_DATA: u16  = 0xA1;
 
 // PIC configurations:
-const PIC_INIT_CMD: u8             = 0x11;
-const MASTER_PIC_VECTOR_OFFSET: u8 = 0x20;
-const SLAVE_PIC_VECTOR_OFFSET: u8  = 0x28;
-const MASTER_PIC_CASCADE: u8       = 0x04;
-const SLAVE_PIC_CASCADE: u8        = 0x02;
-const PIC_8086_MODE: u8            = 0x01;
-const ALL_INTERRUPTS_ENABLED: u8   = 0x00;
-const END_OF_INTERRUPT: u8         = 0x20;
+pub const PIC_INIT_CMD: u8             = 0x11;
+pub const MASTER_PIC_VECTOR_OFFSET: u8 = 0x20;
+pub const SLAVE_PIC_VECTOR_OFFSET: u8  = 0x28;
+pub const MASTER_PIC_CASCADE: u8       = 0x04;
+pub const SLAVE_PIC_CASCADE: u8        = 0x02;
+pub const PIC_8086_MODE: u8            = 0x01;
+pub const ALL_INTERRUPTS_ENABLED: u8   = 0x00;
+pub const END_OF_INTERRUPT: u8         = 0x20;
 
 /// Initialize Programmable Interrupt Controller (PIC).
 pub fn init() {
