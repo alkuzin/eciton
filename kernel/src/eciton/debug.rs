@@ -21,6 +21,10 @@ use crate::{
     printk,
     putk
 };
+use core::{
+    slice::from_raw_parts,
+    str::from_utf8,
+};
 
 /// Print current CPU registers state.
 pub fn dump_registers() {
@@ -67,4 +71,71 @@ pub fn dump_registers() {
     }
 
     printk!("]");
+}
+
+/// Convert byte to ASCII.
+///
+/// # Parameters
+/// - `ch` - given byte to convert.
+///
+/// # Returns
+/// ASCII character to print.
+#[inline(always)]
+fn to_print(ch: u8) -> char {
+    if ch.is_ascii_graphic() {ch as char} else {'.'}
+}
+
+/// Dump file.
+///
+/// # Parameters
+/// - `addr` - given physical address.
+/// - `size` - given number of bytes to dump.
+pub fn kdump(addr: u32, size: usize) {
+    const BYTES_PER_LINE: usize       = 16;
+    const BYTES_PER_LINE_SHIFT: usize = 0x4;
+
+    let ptr: *const u8  = addr as *const u8;
+    let buffer          = unsafe { from_raw_parts(ptr, size) };
+    let total_lines     = (size >> BYTES_PER_LINE_SHIFT) + 1;
+    let mut rows: usize = 0;
+
+    let mut line: [u8;BYTES_PER_LINE] = [0;BYTES_PER_LINE];
+
+    // Print current total number of bytes printed.
+    putk!("\n{:08x} ", rows);
+
+    // Print physical address of current line.
+    putk!("<{:#010p}>  ", unsafe { ptr.add(rows) });
+
+    for (i, byte) in buffer.iter().enumerate() {
+        putk!("{:02x} ", byte);
+        line[i % 16] = to_print(*byte) as u8;
+
+        // Print extra space between each 8 bytes.
+        if (i + 1) % 8 == 0 {
+            putk!(" ");
+        }
+
+        // Print next line each 16 bytes.
+        if (i + 1) % BYTES_PER_LINE == 0 {
+            rows += BYTES_PER_LINE;
+
+            // Print string representation of current line.
+            printk!("|{}|", from_utf8(&line).unwrap());
+            line.fill(0);
+
+            // Check that current line is not the last.
+            if rows >> BYTES_PER_LINE_SHIFT < total_lines - 1 {
+                // Print current total number of bytes printed.
+                putk!("{:08x} ", rows);
+
+                // Print physical address of current line.
+                putk!("<{:#010p}>  ", unsafe { ptr.add(rows) });
+            }
+            else {
+                // Go to the next line if current line is the last.
+                printk!();
+            }
+        }
+    }
 }

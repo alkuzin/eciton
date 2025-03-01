@@ -44,6 +44,4 @@ pub fn init_kernel(_boot_info: &'static MultibootInfo) {
 
     idt::init();
     pr_ok!("Initialized Interrupt Descriptor Table");
-
-    // TODO: add kernel debug functions (kdump)
 }
