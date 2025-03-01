@@ -71,12 +71,12 @@ pub fn _print(args: fmt::Arguments) {
 ///
 /// The output will be formatted as:
 /// ```plaintext
-/// [  OK  ]: Operation completed successfully.
-/// [  OK  ]: Value is: 42
+/// [  OK  ] Operation completed successfully.
+/// [  OK  ] Value is: 42
 /// ```
 #[macro_export]
 macro_rules! pr_ok {
-    ($($arg:tt)*) => ($crate::putk!("[  OK  ]: {}\n", format_args!($($arg)*)));
+    ($($arg:tt)*) => ($crate::putk!("[  OK  ] {}\n", format_args!($($arg)*)));
 }
 
 /// Log error messages that indicate a failure or an unexpected condition.
@@ -89,11 +89,11 @@ macro_rules! pr_ok {
 ///
 /// The output will be formatted as:
 /// ```plaintext
-/// [ERROR]: An error occurred: File not found
+/// [ERROR] An error occurred: File not found
 /// ```
 #[macro_export]
 macro_rules! pr_err {
-    ($($arg:tt)*) => ($crate::putk!("[ERROR]: {}\n", format_args!($($arg)*)));
+    ($($arg:tt)*) => ($crate::putk!("[ERROR] {}\n", format_args!($($arg)*)));
 }
 
 /// Log messages that provide detailed information useful for debugging purposes.
@@ -106,9 +106,9 @@ macro_rules! pr_err {
 ///
 /// The output will be formatted as:
 /// ```plaintext
-/// [DEBUG]: Entering function: my_function
+/// [DEBUG] Entering function: my_function
 /// ```
 #[macro_export]
 macro_rules! pr_debug {
-    ($($arg:tt)*) => ($crate::putk!("[DEBUG]: {}\n", format_args!($($arg)*)));
+    ($($arg:tt)*) => ($crate::putk!("[DEBUG] {}\n", format_args!($($arg)*)));
 }

@@ -16,8 +16,8 @@
 
 //! Kernel panic function.
 
+use crate::{eciton::debug, printk};
 use core::panic::PanicInfo;
-use crate::printk;
 
 /// Custom kernel panic handler.
 ///
@@ -28,9 +28,8 @@ fn panic(info: &PanicInfo) -> ! {
     let message  = info.message().as_str().unwrap_or("Unknown panic");
     let location = info.location().unwrap();
 
-    printk!(
-        "[KERNEL PANIC] Panic occured in file: '{}' on line: {} at column: {}",
-        location.file(),
+    printk!("[PANIC] File: '{}'", location.file());
+    printk!("[PANIC] On line: {} at column: {}",
         location.line(),
         location.column(),
     );
@@ -41,8 +40,12 @@ fn panic(info: &PanicInfo) -> ! {
     // For displaying detailed panic messages in case of exception,
     // panic! is used along with printk! macro.
     if !message.starts_with("EXCEPTION") {
-        printk!("Message: {}", message);
+        printk!("[PANIC] Message: {}", message);
     }
+
+    printk!("---");
+    debug::dump_registers();
+    printk!("---");
 
     // Halt kernel.
     loop {}

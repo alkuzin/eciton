@@ -178,7 +178,7 @@ pub extern "C" fn isr_handler(regs: &IntRegisterState) {
     // Handle exceptions.
     if regs.int_no < 32 {
         let message = EXCEPTION_MESSSAGES[regs.int_no as usize];
-        printk!("[KERNEL PANIC] Exception occured: '{}'", message);
+        printk!("[PANIC] Exception occured: '{}'", message);
         panic!("EXCEPTION");
     }
 }
