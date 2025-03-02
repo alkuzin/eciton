@@ -76,7 +76,7 @@ pub fn _print(args: fmt::Arguments) {
 /// ```
 #[macro_export]
 macro_rules! pr_ok {
-    ($($arg:tt)*) => ($crate::putk!("[  OK  ] {}\n", format_args!($($arg)*)));
+    ($($arg:tt)*) => ($crate::putk!("[ OK  ] {}\n", format_args!($($arg)*)));
 }
 
 /// Log error messages that indicate a failure or an unexpected condition.
@@ -111,4 +111,21 @@ macro_rules! pr_err {
 #[macro_export]
 macro_rules! pr_debug {
     ($($arg:tt)*) => ($crate::putk!("[DEBUG] {}\n", format_args!($($arg)*)));
+}
+
+/// Log error messages that indicate kernel panic without halting CPU.
+///
+/// # Examples
+///
+/// ```rust
+/// pr_panic!("Kernel panic in function: {}", function_name);
+/// ```
+///
+/// The output will be formatted as:
+/// ```plaintext
+/// [PANIC] Kernel panic in function: my_function
+/// ```
+#[macro_export]
+macro_rules! pr_panic {
+    ($($arg:tt)*) => ($crate::putk!("[PANIC] {}\n", format_args!($($arg)*)));
 }

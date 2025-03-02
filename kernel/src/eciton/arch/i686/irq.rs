@@ -16,11 +16,9 @@
 
 //! Provides definitions for Interrupt Requests (IRQ).
 
-use core::ptr;
-
-use crate::printk;
-
 use super::{system::sti, io::outb, pic};
+use crate::pr_panic;
+use core::ptr;
 
 /// Interrupt requests number enumeration.
 #[repr(i32)]
@@ -147,7 +145,9 @@ pub fn free(irq: Irq) {
 pub extern "C" fn irq_handler(regs: &IntRegisterState) {
     // IRQ handler processes the interrupt by calling the appropriate
     // handler function based on the interrupt number.
-    let handler = unsafe { ROUTINES[(regs.int_no - 32) as usize] };
+    let handler = unsafe {
+        ROUTINES[(regs.int_no - EXCEPTION_SIZE as u32) as usize]
+    };
 
     // Handle interrupt if handler exists.
     let null_handler = null_handler as for<'a> fn(&'a IntRegisterState);
@@ -176,9 +176,9 @@ pub extern "C" fn irq_handler(regs: &IntRegisterState) {
 #[unsafe(no_mangle)]
 pub extern "C" fn isr_handler(regs: &IntRegisterState) {
     // Handle exceptions.
-    if regs.int_no < 32 {
+    if regs.int_no < EXCEPTION_SIZE as u32 {
         let message = EXCEPTION_MESSSAGES[regs.int_no as usize];
-        printk!("[PANIC] Exception occured: '{}'", message);
+        pr_panic!("Exception occured: '{}'", message);
         panic!("EXCEPTION");
     }
 }

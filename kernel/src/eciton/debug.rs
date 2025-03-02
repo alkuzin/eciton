@@ -17,9 +17,7 @@
 //! Kernel debug related functions module.
 
 use crate::{
-    eciton::arch::i686::register::{self, RegisterState},
-    printk,
-    putk
+    eciton::arch::i686::register::{self, RegisterState}, pr_panic, printk, putk
 };
 use core::{
     slice::from_raw_parts,
@@ -30,47 +28,46 @@ use core::{
 pub fn dump_registers() {
     let state = RegisterState::new();
 
-    printk!("EAX: {:#010X}  EBX: {:#010X}  ECX: {:#010X}  EDX: {:#010X}",
+    pr_panic!("EAX: {:#010X}  EBX: {:#010X}  ECX: {:#010X}  EDX: {:#010X}",
         state.eax,
         state.ebx,
         state.ecx,
         state.edx,
     );
 
-    printk!("ESI: {:#010X}  EDI: {:#010X}  EBP: {:#010X}  ESP: {:#010X}",
+    pr_panic!("ESI: {:#010X}  EDI: {:#010X}  EBP: {:#010X}  ESP: {:#010X}",
         state.esi,
         state.edi,
         state.ebp,
         state.esp,
     );
 
-    printk!("DS:  {:#010X}  ES:  {:#010X}  FS:  {:#010X}",
+    pr_panic!("DS:  {:#010X}  ES:  {:#010X}  FS:  {:#010X}",
         state.ds,
         state.es,
         state.fs,
     );
 
-    printk!("GS:  {:#010X}  CS:  {:#010X}  SS:  {:#010X}",
+    pr_panic!("GS:  {:#010X}  CS:  {:#010X}  SS:  {:#010X}",
         state.gs,
         state.cs,
         state.ss,
     );
 
-    printk!("CR0: {:#010X}  CR2: {:#010X}  CR3: {:#010X}",
+    pr_panic!("CR0: {:#010X}  CR2: {:#010X}  CR3: {:#010X}",
         state.cr0,
         state.cr2,
         state.cr3,
     );
 
-    putk!("EIP: {:#010X}  EFLAGS: {:#010X} [ ", state.eip, state.eflags);
+    pr_panic!("EIP: {:#010X}", state.eip);
+    pr_panic!("EFLAGS: {:#010X}", state.eflags);
 
-    for i in register::EFLAGS.iter() {
-        if (state.eflags & i.mask) != 0 {
-            putk!("{} ", i.label);
+    for flag in register::EFLAGS.iter() {
+        if (state.eflags & *flag as u32) != 0 {
+            pr_panic!("- {:?}", &flag);
         }
     }
-
-    printk!("]");
 }
 
 /// Convert byte to ASCII.
@@ -102,7 +99,7 @@ pub fn kdump(addr: u32, size: usize) {
     let mut line: [u8;BYTES_PER_LINE] = [0;BYTES_PER_LINE];
 
     // Print current total number of bytes printed.
-    putk!("\n{:08x} ", rows);
+    putk!("{:08x} ", rows);
 
     // Print physical address of current line.
     putk!("<{:#010p}>  ", unsafe { ptr.add(rows) });
