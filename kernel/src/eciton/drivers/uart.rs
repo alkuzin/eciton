@@ -16,11 +16,12 @@
 
 //! Contains UART (Universal Asynchronous Receiver-Transmitter) driver.
 
-use crate::eciton::arch::i686::io;
+use crate::eciton::arch::i686::io::{inb, outb};
 
 /// Base address for COM1.
 const UART_BASE: u16 = 0x3f8;
 
+/// UART driver struct.
 pub struct Uart {}
 
 impl Uart {
@@ -32,32 +33,32 @@ impl Uart {
     pub fn init() -> Result<(),()> {
         unsafe {
             // Disable all interrupts.
-            io::outb(UART_BASE + 1, 0x00);
+            outb(UART_BASE + 1, 0x00);
             // Enable DLAB (set baud rate divisor).
-            io::outb(UART_BASE + 3, 0x80);
+            outb(UART_BASE + 3, 0x80);
             // Set divisor to 3 (lo byte) 38400 baud.
-            io::outb(UART_BASE, 0x03);
+            outb(UART_BASE, 0x03);
             // Set divisor to 3 (hi byte) 38400 baud.
-            io::outb(UART_BASE + 1, 0x00);
+            outb(UART_BASE + 1, 0x00);
             // 8 bits, no parity, one stop bit.
-            io::outb(UART_BASE + 3, 0x03);
+            outb(UART_BASE + 3, 0x03);
             // Enable FIFO, clear them, with 14-byte threshold.
-            io::outb(UART_BASE + 2, 0xC7);
+            outb(UART_BASE + 2, 0xC7);
             // IRQs enabled, RTS/DSR set.
-            io::outb(UART_BASE + 4, 0x0B);
+            outb(UART_BASE + 4, 0x0B);
             // Set in loopback mode, test the serial chip.
-            io::outb(UART_BASE + 4, 0x1E);
+            outb(UART_BASE + 4, 0x1E);
             // Test serial chip (send byte 0xAE and check
             // if serial returns same byte).
-            io::outb(UART_BASE, 0xAE);
+            outb(UART_BASE, 0xAE);
 
             // Check if serial is faulty (i.e: not same byte as sent).
-            if io::inb(UART_BASE) != 0xAE {
+            if inb(UART_BASE) != 0xAE {
                 return Err(());
             }
 
             // Set it in normal operation mode.
-            io::outb(UART_BASE + 4, 0x0F);
+            outb(UART_BASE + 4, 0x0F);
         }
 
         Ok(())
@@ -73,7 +74,7 @@ impl Uart {
         }
 
         unsafe {
-            io::outb(UART_BASE, c as u8);
+            outb(UART_BASE, c as u8);
         }
     }
 
@@ -86,8 +87,7 @@ impl Uart {
         unsafe {
             // Read the Line Status Register and check
             // the transmit empty bit (bit 5).
-            (io::inb(UART_BASE + 5) & 0x20) != 0
+            (inb(UART_BASE + 5) & 0x20) != 0
         }
     }
-
 }

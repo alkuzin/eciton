@@ -36,12 +36,13 @@ use crate::{
 /// # Parameters
 /// - `boot_info` - given multiboot info structure.
 pub fn init_kernel(_boot_info: &'static MultibootInfo) {
-    let _ = Uart::init();
-    pr_ok!("Initialized UART driver");
+    if Uart::init().is_ok() {
+        pr_ok!("Initialized UART driver.");
+    }
 
     gdt::init();
-    pr_ok!("Initialized Global Descriptor Table");
+    pr_ok!("Initialized Global Descriptor Table.");
 
     idt::init();
-    pr_ok!("Initialized Interrupt Descriptor Table");
+    pr_ok!("Initialized Interrupt Descriptor Table.");
 }

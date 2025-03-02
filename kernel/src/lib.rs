@@ -31,12 +31,12 @@ use eciton::multiboot::{MULTIBOOT_BOOTLOADER_MAGIC, MultibootInfo};
 /// - `boot_info` - given multiboot info structure.
 #[unsafe(no_mangle)]
 extern "C" fn kmain(magic: u32, boot_info: &'static MultibootInfo) -> ! {
-    // Check that multiboot magic number is correct
+    // Check that multiboot magic number is correct.
     assert_eq!(magic, MULTIBOOT_BOOTLOADER_MAGIC);
 
-    // Initialize the kernel
+    // Initialize the kernel.
     eciton::init_kernel(boot_info);
 
-    // Halt kernel
+    // Halt kernel.
     loop {}
 }
