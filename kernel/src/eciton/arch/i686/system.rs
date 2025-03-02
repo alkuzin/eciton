@@ -30,6 +30,6 @@ pub fn sti() {
 #[inline(always)]
 pub fn cli() {
     unsafe {
-        asm!("cti");
+        asm!("cli");
     }
 }
