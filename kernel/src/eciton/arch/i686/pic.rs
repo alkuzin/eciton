@@ -15,6 +15,13 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 //! Provides definitions for Programmable Interrupt Controller (PIC).
+//!
+//! # Description
+//! The Programmable Interrupt Controller (PIC) is a crucial component
+//! in computer architecture, particularly in x86 systems, that manages
+//! hardware interrupts. It allows the CPU to handle multiple interrupt
+//! sources efficiently and provides a way to prioritize and route these
+//! interrupts to the appropriate handlers.
 
 use super::io::outb;
 

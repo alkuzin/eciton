@@ -15,8 +15,14 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 //! Global Decriptor Table module.
+//!
+//! # Description
+//! The Global Descriptor Table (GDT) is a critical data structure used in x86
+//! architecture for memory management and protection. It defines the
+//! characteristics of various memory segments, allowing the CPU to manage
+//! memory access and enforce protection mechanisms.
 
-use crate::{printk, putk};
+use crate::pr_debug;
 use core::fmt;
 
 /// GDT segment structure in 32-bit mode.
@@ -48,6 +54,7 @@ struct Pointer {
 
 /// GDT segment offsets enumeration.
 #[repr(u8)]
+#[derive(Debug)]
 pub enum Segment {
     Null        = 0x00,
     KernelCode  = 0x08,
@@ -156,13 +163,19 @@ pub fn init() {
 /// Print GDT related info for debug.
 #[doc(hidden)]
 fn print_gdt() {
-    putk!("GDT pointer: <{:#?}>", unsafe { GDT_PTR });
-    printk!(" {:#?}", unsafe { GDT_PTR.as_ref().unwrap() });
-    printk!("Set {} GDT entries", GDT_ENTRIES);
+    pr_debug!("GDT pointer: <{:#?}> {:#?}",
+        unsafe { GDT_PTR },
+        unsafe { GDT_PTR.as_ref().unwrap() }
+    );
+
+    pr_debug!("Set {} GDT entries", GDT_ENTRIES);
 
     for (i, entry) in unsafe { GDT }.iter().enumerate() {
-        putk!("GDT entry {}:  ", i);
-        printk!("Access: {:#08X}  Flags: {:#08X}", entry.access, entry.flags);
+        pr_debug!("GDT entry {}:  Access: {:#08X}  Flags: {:#08X}",
+            i,
+            entry.access,
+            entry.flags,
+        );
     }
 }
 

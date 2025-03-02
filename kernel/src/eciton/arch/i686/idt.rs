@@ -15,6 +15,12 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 //! Provides definitions for Interrupt Descriptor Table (IDT).
+//!
+//! # Description
+//! The Interrupt Descriptor Table (IDT) is a crucial data structure in x86
+//! architecture that is used to manage interrupts and exceptions.
+//! It allows the CPU to respond to various events, such as hardware
+//! interrupts, software interrupts, and exceptions.
 
 use core::ffi::c_void;
 
@@ -48,6 +54,7 @@ struct Pointer {
 
 /// Number of IDT entries.
 const IDT_ENTRIES: usize = 256;
+
 /// Descriptor used to define an interrupt handler.
 const INTERRUPT_GATE: u8 = 0x8E;
 
@@ -93,6 +100,13 @@ fn set_int_function(num: usize, offset: u32) {
     set_gate(num, offset, gdt::Segment::KernelCode as u16, INTERRUPT_GATE);
 }
 
+/// Convert function pointer to u32.
+///
+/// # Parameters
+/// - `ptr` - given function pointer to convert.
+///
+/// # Returns
+/// Function pointer address as u32.
 #[inline(always)]
 fn fn_ptr_to_u32(ptr: unsafe extern "C" fn()) -> u32 {
     (ptr as *const c_void) as u32
@@ -134,7 +148,7 @@ fn set_gates() {
     set_int_function(30, fn_ptr_to_u32(irq::isr30));
     set_int_function(31, fn_ptr_to_u32(irq::isr31));
 
-    // Set gates for IRQ functions for for system calls.
+    // Set gates for IRQ functions for system calls.
     set_int_function(32, fn_ptr_to_u32(irq::irq0));
     set_int_function(33, fn_ptr_to_u32(irq::irq1));
     set_int_function(34, fn_ptr_to_u32(irq::irq2));
