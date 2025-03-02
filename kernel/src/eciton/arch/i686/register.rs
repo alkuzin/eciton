@@ -182,7 +182,7 @@ pub fn write(reg: Register, value: u32) {
             Register::Edi    => asm!("mov edi, {0:e}", in(reg) value),
             Register::Ebp    => asm!("mov ebp, {0:e}", in(reg) value),
             Register::Esp    => asm!("mov esp, {0:e}", in(reg) value),
-            Register::Eip    => todo!("Not implemented"),
+            Register::Eip    => asm!("nop"), // Not implemented.
             Register::Eflags => asm!("push {0}", "popf", in(reg) value),
             Register::Ds     => asm!("mov ds, {0:e}", in(reg) value),
             Register::Es     => asm!("mov es, {0:e}", in(reg) value),
@@ -197,12 +197,30 @@ pub fn write(reg: Register, value: u32) {
     }
 }
 
-/// Eflags info struct.
-pub struct Eflags {
-    /// Eflags bit mask.
-    pub mask: u32,
-    /// Flag string representation.
-    pub label: &'static str,
+/// Eflags enumeration.
+#[derive(Debug, Clone, Copy)]
+#[repr(u32)]
+pub enum Eflags {
+    CarryFlag               = 0x00000001,
+    ParityFlag              = 0x00000004,
+    AuxiliaryFlag           = 0x00000010,
+    ZeroFlag                = 0x00000040,
+    SignFlag                = 0x00000080,
+    TrapFlag                = 0x00000100,
+    InterruptEnableFlag     = 0x00000200,
+    DirectionFlag           = 0x00000400,
+    OverflowFlag            = 0x00000800,
+    Iopl                    = 0x00003000,
+    NestedTaskFlag          = 0x00004000,
+    ModeFlag                = 0x00008000,
+    ResumeFlag              = 0x00010000,
+    Virtual8086ModeFlag     = 0x00020000,
+    AlignmentCheck          = 0x00040000,
+    VirtualInterruptFlag    = 0x00080000,
+    VirtualInterruptPending = 0x00100000,
+    CPUIDFlag               = 0x00200000,
+    AESKeyScheduleLoaded    = 0x40000000,
+    AlternateInstructionSet = 0x80000000,
 }
 
 /// Number of flags.
@@ -210,24 +228,24 @@ pub const EFLAGS_COUNT: usize = 20;
 
 /// Array of Eflags info structs.
 pub const EFLAGS: [Eflags;EFLAGS_COUNT] = [
-    Eflags {mask: 0x00000001, label: "CF"  }, // Carry flag.
-    Eflags {mask: 0x00000004, label: "PF"  }, // Parity flag.
-    Eflags {mask: 0x00000010, label: "AF"  }, // Auxiliary flag.
-    Eflags {mask: 0x00000040, label: "ZF"  }, // Zero flag.
-    Eflags {mask: 0x00000080, label: "SF"  }, // Sign flag.
-    Eflags {mask: 0x00000100, label: "TF"  }, // Trap flag.
-    Eflags {mask: 0x00000200, label: "IF"  }, // Interrupt enable flag.
-    Eflags {mask: 0x00000400, label: "DF"  }, // Direction flag.
-    Eflags {mask: 0x00000800, label: "OF"  }, // Overflow flag.
-    Eflags {mask: 0x00003000, label: "IOPL"}, // I/O privilege level.
-    Eflags {mask: 0x00004000, label: "NT"  }, // Nested task flag.
-    Eflags {mask: 0x00008000, label: "MD"  }, // Mode flag.
-    Eflags {mask: 0x00010000, label: "RF"  }, // Resume flag.
-    Eflags {mask: 0x00020000, label: "VM"  }, // Virtual 8086 mode flag.
-    Eflags {mask: 0x00040000, label: "AC"  }, // Alignment check.
-    Eflags {mask: 0x00080000, label: "VIF" }, // Virtual interrupt flag.
-    Eflags {mask: 0x00100000, label: "VIP" }, // Virtual interrupt pending.
-    Eflags {mask: 0x00200000, label: "ID"  }, // Able to use CPUID.
-    Eflags {mask: 0x40000000, label: "AES" }, // AES key schedule loaded.
-    Eflags {mask: 0x80000000, label: "AI"  }  // Alternate Instruction Set.
+    Eflags::CarryFlag,
+    Eflags::ParityFlag,
+    Eflags::AuxiliaryFlag,
+    Eflags::ZeroFlag,
+    Eflags::SignFlag,
+    Eflags::TrapFlag,
+    Eflags::InterruptEnableFlag,
+    Eflags::DirectionFlag,
+    Eflags::OverflowFlag,
+    Eflags::Iopl,
+    Eflags::NestedTaskFlag,
+    Eflags::ModeFlag,
+    Eflags::ResumeFlag,
+    Eflags::Virtual8086ModeFlag,
+    Eflags::AlignmentCheck,
+    Eflags::VirtualInterruptFlag,
+    Eflags::VirtualInterruptPending,
+    Eflags::CPUIDFlag,
+    Eflags::AESKeyScheduleLoaded,
+    Eflags::AlternateInstructionSet,
 ];
