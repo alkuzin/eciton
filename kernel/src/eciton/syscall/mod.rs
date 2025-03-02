@@ -14,39 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-//! Main kernel module. Responsible for initializing kernel components.
-
-pub mod multiboot;
-pub mod printk;
-pub mod panic;
-mod syscall;
-mod drivers;
-mod debug;
-mod arch;
+//! Kernel syscalls module.
 
 use crate::{
-    eciton::{
-        arch::i686::{gdt, idt},
-        drivers::uart::Uart,
-        multiboot::MultibootInfo
-    }, pr_ok
+    eciton::arch::i686::irq::{self, IntRegisterState},
+    pr_debug, pr_err
 };
 
-/// Initialize kernel.
-///
-/// # Parameters
-/// - `boot_info` - given multiboot info structure.
-pub fn init_kernel(_boot_info: &'static MultibootInfo) {
-    if Uart::init().is_ok() {
-        pr_ok!("Initialized UART driver.");
+pub const SYSCALL_NUM: usize = 0x66;
+const SYSCALL_COUNT: usize   = 1;
+
+// TODO: add syscall table
+
+pub fn init() {
+    irq::request(SYSCALL_NUM, syscall_handler);
+}
+
+fn syscall_handler(regs: &IntRegisterState) {
+    pr_debug!("SYSCALL HANDLER BEGIN");
+    pr_debug!("{:#X?}", regs);
+
+    match regs.eax {
+        _ => pr_err!("Incorrect syscall number"),
     }
 
-    gdt::init();
-    pr_ok!("Initialized Global Descriptor Table.");
-
-    idt::init();
-    pr_ok!("Initialized Interrupt Descriptor Table.");
-
-    syscall::init();
-    pr_ok!("Initialized System call handler.");
+    pr_debug!("SYSCALL HANDLER END");
 }

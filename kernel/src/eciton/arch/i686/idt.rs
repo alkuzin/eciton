@@ -22,11 +22,8 @@
 //! It allows the CPU to respond to various events, such as hardware
 //! interrupts, software interrupts, and exceptions.
 
+use crate::eciton::arch::i686::{gdt, pic, irq};
 use core::ffi::c_void;
-
-use super::gdt;
-use super::pic;
-use super::irq;
 
 /// IDT gate descriptor structure in 32-bit mode.
 #[repr(C, packed)]
@@ -53,7 +50,7 @@ struct Pointer {
 }
 
 /// Number of IDT entries.
-const IDT_ENTRIES: usize = 256;
+pub const IDT_ENTRIES: usize = 256;
 
 /// Descriptor used to define an interrupt handler.
 const INTERRUPT_GATE: u8 = 0x8E;
@@ -96,7 +93,7 @@ fn set_gate(num: usize, offset: u32, selector: u16, flags: u8) {
 /// - `num`    - given IDT number.
 /// - `offset` - given entry point of the interrupt function.
 #[inline(always)]
-fn set_int_function(num: usize, offset: u32) {
+pub fn set_int_function(num: usize, offset: u32) {
     set_gate(num, offset, gdt::Segment::KernelCode as u16, INTERRUPT_GATE);
 }
 
@@ -166,10 +163,14 @@ fn set_gates() {
     set_int_function(46, fn_ptr_to_u32(irq::irq14));
     set_int_function(47, fn_ptr_to_u32(irq::irq15));
 
+    // Eciton kernel syscall (0x66).
+    set_int_function(102, fn_ptr_to_u32(irq::isr102));
+
     // Set gates for ISR functions for hardware interrupts 0-15.
     set_int_function(128, fn_ptr_to_u32(irq::isr128));
     set_int_function(177, fn_ptr_to_u32(irq::isr177));
 }
+
 
 unsafe extern "C" {
     /// Flush out the old IDT and install the new changes.

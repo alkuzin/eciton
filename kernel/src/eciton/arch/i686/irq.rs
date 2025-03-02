@@ -16,20 +16,15 @@
 
 //! Provides definitions for Interrupt Requests (IRQ).
 
-use super::{system::sti, io::outb, pic};
-use crate::pr_panic;
+use crate::{
+    eciton::arch::i686::{idt, io::outb, pic, system::sti},
+    pr_panic
+};
 use core::ptr;
-
-/// Interrupt requests number enumeration.
-#[repr(i32)]
-pub enum Irq {
-    Timer    = 0,
-    Keyboard = 1,
-    Clock    = 8,
-}
 
 /// Interrupt register state struct.
 #[repr(C, packed)]
+#[derive(Debug)]
 pub struct IntRegisterState {
     /// Control register 2.
     pub cr2: u32,
@@ -70,6 +65,7 @@ pub struct IntRegisterState {
 /// Interrupt requests handler function alias.
 pub type InterruptHandler = fn (&IntRegisterState);
 
+/// Number of exception messages.
 const EXCEPTION_SIZE: usize = 32;
 
 const EXCEPTION_MESSSAGES: [&str;EXCEPTION_SIZE] = [
@@ -112,8 +108,14 @@ fn null_handler(_ : &IntRegisterState) {
     // Do nothing.
 }
 
+/// Routines table type.
+type Routines = [InterruptHandler;idt::IDT_ENTRIES];
+
 /// Handlers that are designed to respond to hardware interrupts.
-static mut ROUTINES: [InterruptHandler;16] = [null_handler;16];
+static mut ROUTINES: Routines = [null_handler;idt::IDT_ENTRIES];
+
+/// Interrupt requests number type.
+pub type Irq = usize;
 
 /// Install handler for IRQ.
 ///
@@ -122,7 +124,7 @@ static mut ROUTINES: [InterruptHandler;16] = [null_handler;16];
 /// - `handler` - given pointer to IRQ handler function.
 pub fn request(irq: Irq, handler: InterruptHandler) {
     unsafe {
-        ROUTINES[irq as usize] = handler;
+        ROUTINES[irq] = handler;
     }
     sti();
 }
@@ -133,7 +135,7 @@ pub fn request(irq: Irq, handler: InterruptHandler) {
 /// - `irq` - given IRQ number.
 pub fn free(irq: Irq) {
     unsafe {
-        ROUTINES[irq as usize] = null_handler;
+        ROUTINES[irq] = null_handler;
     }
 }
 
@@ -181,6 +183,14 @@ pub extern "C" fn isr_handler(regs: &IntRegisterState) {
         pr_panic!("Exception occured: '{}'", message);
         panic!("EXCEPTION");
     }
+
+    // Handle interrupt if handler exists.
+    let null_handler = null_handler as for<'a> fn(&'a IntRegisterState);
+    let handler = unsafe { ROUTINES[regs.int_no as usize] };
+
+    if !ptr::fn_addr_eq(handler, null_handler) {
+        handler(regs);
+    }
 }
 
 unsafe extern "C" {
@@ -219,6 +229,8 @@ unsafe extern "C" {
     pub unsafe fn isr31();
 
     /// ISR functions for system calls.
+    /// Eciton kernel syscall (0x66).
+    pub unsafe fn isr102();
     pub unsafe fn isr128();
     pub unsafe fn isr177();
 
