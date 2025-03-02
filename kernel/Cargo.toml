@@ -17,7 +17,7 @@
 # Project package info section.
 [package]
 name    = "eciton"
-version = "0.0.0"
+version = "0.0.1"
 edition = "2024"
 
 # Project library settings section.
