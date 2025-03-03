@@ -20,9 +20,30 @@
 #![no_main]                     // Do not use the standard main function.
 #![allow(clippy::empty_loop)]   // Ignore empty loop.
 #![allow(dead_code)]            // Allow unused values.
+#![feature(thread_local)]
 
+extern crate sdk;   // EcitonSDK crate.
+extern crate ecos;  // Default libOS crate.
 mod eciton;
 use eciton::multiboot::{MULTIBOOT_BOOTLOADER_MAGIC, MultibootInfo};
+use lazy_static::lazy_static;
+use spin::Mutex;
+
+lazy_static! {
+    /// Global boot information struct.
+    pub static ref BOOT_INFO: Mutex<MultibootInfo> = Mutex::new(
+        MultibootInfo::default()
+    );
+}
+
+/// Set global boot information struct.
+///
+/// # Parameters
+/// - `boot_info` - given multiboot info structure.
+fn set_boot_info(boot_info: &MultibootInfo) {
+    let mut guard = BOOT_INFO.lock();
+    guard.clone_from(boot_info);
+}
 
 /// Kernel entry point.
 ///
@@ -30,11 +51,12 @@ use eciton::multiboot::{MULTIBOOT_BOOTLOADER_MAGIC, MultibootInfo};
 /// - `magic`     - given multiboot magic number.
 /// - `boot_info` - given multiboot info structure.
 #[unsafe(no_mangle)]
-extern "C" fn kmain(magic: u32, boot_info: &'static MultibootInfo) -> ! {
+extern "C" fn kmain(magic: u32, boot_info: &MultibootInfo) -> ! {
     // Check that multiboot magic number is correct.
     assert_eq!(magic, MULTIBOOT_BOOTLOADER_MAGIC);
 
     // Initialize the kernel.
+    set_boot_info(boot_info);
     eciton::init_kernel(boot_info);
 
     // Halt kernel.
