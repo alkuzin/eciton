@@ -29,14 +29,14 @@ use crate::{
         arch::i686::{gdt, idt},
         drivers::uart::Uart,
         multiboot::MultibootInfo
-    }, pr_ok
+    }, ecos, pr_ok
 };
 
 /// Initialize kernel.
 ///
 /// # Parameters
 /// - `boot_info` - given multiboot info structure.
-pub fn init_kernel(_boot_info: &'static MultibootInfo) {
+pub fn init_kernel(_boot_info: &MultibootInfo) {
     if Uart::init().is_ok() {
         pr_ok!("Initialized UART driver.");
     }
@@ -49,4 +49,7 @@ pub fn init_kernel(_boot_info: &'static MultibootInfo) {
 
     syscall::init();
     pr_ok!("Initialized System call handler.");
+
+    pr_ok!("Running default libOS.");
+    ecos::libos_main();
 }
