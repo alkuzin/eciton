@@ -16,6 +16,8 @@
 
 //! Contains multiboot information structures declarations.
 
+use core::fmt;
+
 /// Number of bytes bytes from the start of the file
 /// to search for the header.
 pub const MULTIBOOT_SEARCH: u32       = 8192;
@@ -116,7 +118,7 @@ pub struct MultibootHeader {
 }
 
 /// The symbol table for a.out.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy)]
 #[repr(C)]
 pub struct MultibootAOutSymbolTable {
     pub tabsize:  MultibootU32,
@@ -143,16 +145,38 @@ pub union MultibootSymbolTableUnion {
     pub elf_sec:  MultibootELFSectionHeaderTable,
 }
 
-#[derive(Debug, Clone, Copy)]
+impl fmt::Debug for MultibootSymbolTableUnion {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        unsafe {
+            write!(
+                f,
+                "MultibootSymbolTableUnion {{ aout_sym: {:?} }}",
+                self.aout_sym
+            )?;
+        }
+        Ok(())
+    }
+}
+
+impl Default for MultibootSymbolTableUnion {
+    fn default() -> Self {
+        MultibootSymbolTableUnion {
+            aout_sym: MultibootAOutSymbolTable::default(),
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone, Copy)]
 #[repr(u8)]
 pub enum MultibootFramebufferType {
     Indexed = 0,
+    #[default]
     Rgb     = 1,
     EgaText = 2,
 }
 
 /// Struct for framebuffer palette information.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy)]
 #[repr(C)]
 pub struct FramebufferPalette {
     pub addr:       MultibootU32,
@@ -160,7 +184,7 @@ pub struct FramebufferPalette {
 }
 
 /// Struct for framebuffer RGB information.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy)]
 #[repr(C)]
 pub struct FramebufferRGB {
     pub red_field_position:   MultibootU8,
@@ -178,6 +202,28 @@ pub union FramebufferUnion {
     pub rgb:     FramebufferRGB,
 }
 
+impl fmt::Debug for FramebufferUnion {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        unsafe {
+            write!(
+                f,
+                "FramebufferUnion {{ rgb: {:?} }}",
+                self.rgb
+            )?;
+        }
+        Ok(())
+    }
+}
+
+impl Default for FramebufferUnion {
+    fn default() -> Self {
+        FramebufferUnion {
+            rgb: FramebufferRGB::default(),
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone, Copy)]
 #[repr(C)]
 pub struct MultibootInfo {
     /// Multiboot info version number.
