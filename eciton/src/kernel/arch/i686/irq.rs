@@ -16,19 +16,15 @@
 
 //! Provides definitions for Interrupt Requests (IRQ).
 
-use crate::{
-    kernel::arch::i686::{idt, pic, system::sti},
-    pr_panic
-};
-
+use crate::{kernel::arch::i686::{idt, pic}, pr_panic};
 pub use eciton_sdk::arch::i686::{
     io::outb,
+    system::sti,
     irq::{
         IntRegisterState, InterruptHandler, Irq,
         EXCEPTION_SIZE, EXCEPTION_MESSSAGES
     },
 };
-
 use core::ptr;
 
 /// Null interrupt handler (used as placeholder for ROUTINES below).
