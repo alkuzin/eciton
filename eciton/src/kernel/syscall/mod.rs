@@ -51,12 +51,9 @@ fn syscall_handler(regs: &IntRegisterState) {
 
 // TODO: move to separate module.
 pub mod sys {
-    use crate::{
-        kernel::arch::i686::{
-            irq::IntRegisterState,
-            register::{self, Register}
-        },
-        eciton_sdk::vbe::Framebuffer,
+    use eciton_sdk::{
+        arch::i686::{ irq::IntRegisterState, register::{self, Register}},
+        vbe::Framebuffer,
     };
 
     /// <SYSCALL> Get framebuffer.

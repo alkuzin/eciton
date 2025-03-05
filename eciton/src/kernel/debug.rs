@@ -17,12 +17,10 @@
 //! Kernel debug related functions module.
 
 use crate::{
-    kernel::arch::i686::register::{self, RegisterState}, pr_panic, printk, putk
+    eciton_sdk::arch::i686::register::{self, RegisterState},
+    pr_panic, printk, putk
 };
-use core::{
-    slice::from_raw_parts,
-    str::from_utf8,
-};
+use core::{slice::from_raw_parts, str::from_utf8};
 
 /// Print current CPU registers state.
 pub fn dump_registers() {
@@ -82,7 +80,7 @@ fn to_print(ch: u8) -> char {
     if ch.is_ascii_graphic() {ch as char} else {'.'}
 }
 
-/// Dump file.
+/// Dump memory.
 ///
 /// # Parameters
 /// - `addr` - given physical address.
