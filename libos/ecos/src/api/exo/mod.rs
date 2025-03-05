@@ -16,7 +16,7 @@
 
 //! Eciton exokernel syscall API main module.
 
-use sdk::vbe::Framebuffer;
+use eciton_sdk::vbe::Framebuffer;
 use core::arch::asm;
 
 // TODO: make syscalls compatible with C.

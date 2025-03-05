@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "sdk"
+name = "eciton_sdk"
 version = "0.0.0"

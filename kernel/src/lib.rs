@@ -22,8 +22,8 @@
 #![allow(dead_code)]            // Allow unused values.
 #![feature(thread_local)]
 
-extern crate sdk;   // EcitonSDK crate.
-extern crate ecos;  // Default libOS crate.
+extern crate eciton_sdk;    // EcitonSDK crate.
+extern crate ecos;          // Default libOS crate.
 mod eciton;
 use eciton::multiboot::{MULTIBOOT_BOOTLOADER_MAGIC, MultibootInfo};
 use lazy_static::lazy_static;

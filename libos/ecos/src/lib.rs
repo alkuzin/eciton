@@ -22,7 +22,7 @@
 #![allow(dead_code)]            // Allow unused values.
 
 /// EcitonSDK crate.
-extern crate sdk;
+extern crate eciton_sdk;
 
 pub mod printk;
 mod graphics;
