@@ -17,7 +17,7 @@
 //! Graphics module. Contains declarations for RGB colors and
 //! other graphics related functions.
 
-pub use crate::sdk::Framebuffer;
+pub use sdk::vbe::Framebuffer;
 pub mod terminal;
 pub mod font;
 

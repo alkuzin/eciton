@@ -58,7 +58,7 @@ pub mod sys {
             irq::IntRegisterState,
             register::{self, Register}
         },
-        sdk::Framebuffer,
+        sdk::vbe::Framebuffer,
     };
 
     /// <SYSCALL> Get framebuffer.

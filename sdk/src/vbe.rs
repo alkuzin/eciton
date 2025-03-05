@@ -14,11 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-//! EcitonSDK main module.
+//! VBE (VESA BIOS Extensions) module.
 
-#![no_std]                      // Do not use the standard library.
-#![no_main]                     // Do not use the standard main function.
-#![allow(clippy::empty_loop)]   // Ignore empty loop.
-#![allow(dead_code)]            // Allow unused values.
-
-pub mod vbe;
+/// VESA framebuffer struct.
+#[derive(Debug, Default, Clone, Copy)]
+pub struct Framebuffer {
+    /// Framebuffer physical address.
+    pub addr: u64,
+    /// Number of bytes in a single row of the framebuffer.
+    pub pitch: u32,
+    /// Y-resolution.
+    pub width: u32,
+    /// X-resolution.
+    pub height: u32,
+    /// Bytes per pixel.
+    pub bpp: u8,
+}
