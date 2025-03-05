@@ -14,11 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-//! i686 arch main module.
+//! Architecture dependent code main module.
 
-pub mod register;
-pub mod system;
-pub mod gdt;
-pub mod irq;
-pub mod idt;
-mod pic;
+pub mod i686;

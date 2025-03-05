@@ -16,9 +16,4 @@
 
 //! i686 arch main module.
 
-pub mod register;
-pub mod system;
-pub mod gdt;
-pub mod irq;
-pub mod idt;
-mod pic;
+pub mod io;

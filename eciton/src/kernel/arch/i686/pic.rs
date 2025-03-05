@@ -23,7 +23,7 @@
 //! sources efficiently and provides a way to prioritize and route these
 //! interrupts to the appropriate handlers.
 
-use super::io::outb;
+use eciton_sdk::arch::i686::io::outb;
 
 pub const MASTER_PIC_CMD: u16  = 0x20;
 pub const MASTER_PIC_DATA: u16 = 0x21;
