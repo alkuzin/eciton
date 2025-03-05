@@ -24,8 +24,8 @@
 
 extern crate eciton_sdk;    // EcitonSDK crate.
 extern crate ecos;          // Default libOS crate.
-mod eciton;
-use eciton::multiboot::{MULTIBOOT_BOOTLOADER_MAGIC, MultibootInfo};
+mod kernel;
+use kernel::multiboot::{MULTIBOOT_BOOTLOADER_MAGIC, MultibootInfo};
 use lazy_static::lazy_static;
 use spin::Mutex;
 
@@ -57,7 +57,7 @@ extern "C" fn kmain(magic: u32, boot_info: &MultibootInfo) -> ! {
 
     // Initialize the kernel.
     set_boot_info(boot_info);
-    eciton::init_kernel(boot_info);
+    kernel::init(boot_info);
 
     // Halt kernel.
     loop {}

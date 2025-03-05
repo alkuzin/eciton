@@ -22,7 +22,7 @@
 //! It allows the CPU to respond to various events, such as hardware
 //! interrupts, software interrupts, and exceptions.
 
-use crate::eciton::arch::i686::{gdt, pic, irq};
+use crate::kernel::arch::i686::{gdt, pic, irq};
 use core::ffi::c_void;
 
 /// IDT gate descriptor structure in 32-bit mode.

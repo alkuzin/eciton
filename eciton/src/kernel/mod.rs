@@ -25,7 +25,7 @@ mod debug;
 mod arch;
 
 use crate::{
-    eciton::{
+    kernel::{
         arch::i686::{gdt, idt},
         drivers::uart::Uart,
         multiboot::MultibootInfo
@@ -36,7 +36,7 @@ use crate::{
 ///
 /// # Parameters
 /// - `boot_info` - given multiboot info structure.
-pub fn init_kernel(_boot_info: &MultibootInfo) {
+pub fn init(_boot_info: &MultibootInfo) {
     if Uart::init().is_ok() {
         pr_ok!("Initialized UART driver.");
     }

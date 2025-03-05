@@ -16,7 +16,7 @@
 
 //! Contains UART (Universal Asynchronous Receiver-Transmitter) driver.
 
-use crate::eciton::arch::i686::io::{inb, outb};
+use crate::kernel::arch::i686::io::{inb, outb};
 
 /// Base address for COM1.
 const UART_BASE: u16 = 0x3f8;

@@ -16,7 +16,7 @@
 
 //! Contains kernel log functions.
 
-use crate::eciton::drivers::uart::Uart;
+use super::drivers::uart::Uart;
 use lazy_static::lazy_static;
 use spin::Mutex;
 use core::fmt;
@@ -38,7 +38,7 @@ lazy_static! {
 #[macro_export]
 macro_rules! putk {
     ($($arg:tt)*) => (
-        $crate::eciton::printk::_print(format_args!($($arg)*))
+        $crate::kernel::printk::_print(format_args!($($arg)*))
     );
 }
 

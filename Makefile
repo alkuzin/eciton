@@ -21,10 +21,10 @@ LINKER_FLAGS = -z noexecstack -melf_i386
 
 SELECTED_TARGET = i686
 
-KERNEL_PATH  	 = kernel
+KERNEL_PATH  	 = eciton
 BUILD_PATH   	 = build
 ISO_PATH     	 = $(BUILD_PATH)/iso
-ARCH_PATH    	 = $(KERNEL_PATH)/src/eciton/arch
+ARCH_PATH    	 = $(KERNEL_PATH)/src/kernel/arch
 ASM_PATH     	 = $(ARCH_PATH)/$(SELECTED_TARGET)/asm
 TARGETS_PATH 	 = targets/$(SELECTED_TARGET)
 GRUB_CONFIG_PATH = targets

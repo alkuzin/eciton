@@ -17,7 +17,7 @@
 //! Kernel syscalls module.
 
 use crate::{
-    eciton::arch::i686::irq::{self, IntRegisterState},
+    kernel::arch::i686::irq::{self, IntRegisterState},
     pr_debug,
 };
 
@@ -54,7 +54,7 @@ fn syscall_handler(regs: &IntRegisterState) {
 // TODO: move to separate module.
 pub mod sys {
     use crate::{
-        eciton::arch::i686::{
+        kernel::arch::i686::{
             irq::IntRegisterState,
             register::{self, Register}
         },

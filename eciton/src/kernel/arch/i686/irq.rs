@@ -17,7 +17,7 @@
 //! Provides definitions for Interrupt Requests (IRQ).
 
 use crate::{
-    eciton::arch::i686::{idt, io::outb, pic, system::sti},
+    kernel::arch::i686::{idt, io::outb, pic, system::sti},
     pr_panic
 };
 use core::ptr;

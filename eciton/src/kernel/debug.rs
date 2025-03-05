@@ -17,7 +17,7 @@
 //! Kernel debug related functions module.
 
 use crate::{
-    eciton::arch::i686::register::{self, RegisterState}, pr_panic, printk, putk
+    kernel::arch::i686::register::{self, RegisterState}, pr_panic, printk, putk
 };
 use core::{
     slice::from_raw_parts,

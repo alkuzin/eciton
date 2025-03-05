@@ -16,7 +16,7 @@
 
 //! Kernel panic function.
 
-use crate::{eciton::debug, pr_panic};
+use crate::{kernel::debug, pr_panic};
 use core::panic::PanicInfo;
 
 /// Custom kernel panic handler.
