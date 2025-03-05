@@ -16,10 +16,8 @@
 
 //! Kernel syscalls module.
 
-use crate::{
-    kernel::arch::i686::irq::{self, IntRegisterState},
-    pr_debug,
-};
+use crate::kernel::arch::i686::irq::{self, IntRegisterState};
+use crate::pr_debug;
 
 pub const SYSCALL_NUM: usize = 0x66;
 const SYSCALL_COUNT: usize   = 1;

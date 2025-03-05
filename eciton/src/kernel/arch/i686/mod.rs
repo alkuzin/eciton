@@ -21,4 +21,4 @@ pub mod system;
 pub mod gdt;
 pub mod irq;
 pub mod idt;
-mod pic;
+pub mod pic;

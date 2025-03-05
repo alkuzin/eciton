@@ -18,91 +18,18 @@
 
 use crate::{
     kernel::arch::i686::{idt, pic, system::sti},
-    eciton_sdk::arch::i686::io::outb,
     pr_panic
 };
+
+pub use eciton_sdk::arch::i686::{
+    io::outb,
+    irq::{
+        IntRegisterState, InterruptHandler, Irq,
+        EXCEPTION_SIZE, EXCEPTION_MESSSAGES
+    },
+};
+
 use core::ptr;
-
-/// Interrupt register state struct.
-#[repr(C, packed)]
-#[derive(Debug)]
-pub struct IntRegisterState {
-    /// Control register 2.
-    pub cr2: u32,
-    /// Data segment.
-    pub ds: u32,
-    /// Sestination index.
-    pub edi: u32,
-    /// Source index.
-    pub esi: u32,
-    /// Base pointer.
-    pub ebp: u32,
-    /// Stack pointer.
-    pub esp: u32,
-    /// Base register.
-    pub ebx: u32,
-    /// Data register.
-    pub edx: u32,
-    /// Counter register.
-    pub ecx: u32,
-    /// Accumulator register.
-    pub eax: u32,
-    /// Interrupt number.
-    pub int_no: u32,
-    /// Error code.
-    pub err_code: u32,
-    /// Instruction pointer.
-    pub eip: u32,
-    /// Code segment.
-    pub cs: u32,
-    /// Flags register.
-    pub eflags: u32,
-    /// User stack pointer.
-    pub useresp: u32,
-    /// Stack segment.
-    pub ss: u32,
-}
-
-/// Interrupt requests handler function alias.
-pub type InterruptHandler = fn (&IntRegisterState);
-
-/// Number of exception messages.
-const EXCEPTION_SIZE: usize = 32;
-
-const EXCEPTION_MESSSAGES: [&str;EXCEPTION_SIZE] = [
-    "Division by zero",
-    "Debug",
-    "Non maskable interrupt",
-    "Breakpoint",
-    "Into detected overflow",
-    "Out of bounds",
-    "Invalid opcode",
-    "No coprocessor",
-    "Double fault",
-    "Coprocessor segment overrun",
-    "Bad TSS",
-    "Segment not present",
-    "Stack fault",
-    "General protection fault",
-    "Page fault",
-    "Unknown interrupt",
-    "Coprocessor fault",
-    "Alignment fault",
-    "Machine check",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved"
-];
 
 /// Null interrupt handler (used as placeholder for ROUTINES below).
 fn null_handler(_ : &IntRegisterState) {
@@ -114,9 +41,6 @@ type Routines = [InterruptHandler;idt::IDT_ENTRIES];
 
 /// Handlers that are designed to respond to hardware interrupts.
 static mut ROUTINES: Routines = [null_handler;idt::IDT_ENTRIES];
-
-/// Interrupt requests number type.
-pub type Irq = usize;
 
 /// Install handler for IRQ.
 ///
