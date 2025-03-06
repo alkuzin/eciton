@@ -27,17 +27,17 @@ use core::{
 #[derive(Debug)]
 pub struct Bitmap<T> {
     /// Data pointer.
-    data: *mut T,
+    pub data: *mut T,
     /// Size of data in bytes.
-    size: usize,
+    pub size: usize,
     /// Total number of bits in data.
-    bits: usize,
+    pub bits: usize,
 }
 
 impl<T> Bitmap<T>
 where
     T: From<u8> + Copy + BitAnd<Output = T> + Shl<usize, Output = T>
-    + BitOrAssign + Not<Output = T> + BitAndAssign + PartialEq<i32>
+    + BitOrAssign + Not<Output = T> + BitAndAssign + PartialEq<u32>
 {
     /// Construct new bitmap object.
     ///
