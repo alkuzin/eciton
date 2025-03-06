@@ -19,17 +19,19 @@
 pub mod multiboot;
 pub mod printk;
 pub mod panic;
+pub mod bitmap;
+pub mod bitops;
 mod syscall;
 mod drivers;
 mod debug;
 mod arch;
 
 use crate::{
-    kernel::{
+    ecos, kernel::{
         arch::i686::{gdt, idt},
         drivers::uart::Uart,
         multiboot::MultibootInfo
-    }, ecos, pr_ok
+    }, pr_ok
 };
 
 /// Initialize kernel.

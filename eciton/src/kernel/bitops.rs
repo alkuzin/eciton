@@ -16,7 +16,10 @@
 
 //! Contain bit operations declarations.
 
-use core::ops::{BitAnd, Shl, Not, BitAndAssign, BitOrAssign};
+use core::{
+    ops::{BitAnd, Shl, Not, BitAndAssign, BitOrAssign},
+    cmp::PartialOrd, mem::size_of
+};
 
 /// Number of bits per byte.
 pub const BITS_PER_BYTE: usize = 8;
@@ -56,7 +59,7 @@ pub const fn bytes_to_bits(n: usize) -> usize {
 /// Number of bits in value.
 #[inline(always)]
 pub const fn bits_per_type<T>() -> usize {
-    bytes_to_bits(core::mem::size_of::<T>())
+    bytes_to_bits(size_of::<T>())
 }
 
 /// Set the specific bit of given value.
@@ -67,7 +70,7 @@ pub const fn bits_per_type<T>() -> usize {
 #[inline(always)]
 pub fn set_bit<T>(value: &mut T, pos: usize)
 where
-    T: BitOrAssign + Shl<usize, Output=T> + From<u8>
+    T: BitOrAssign + Shl<usize, Output = T> + From<u8>
 {
     let mask = T::from(1u8) << pos;
     *value |= mask;
@@ -81,7 +84,7 @@ where
 #[inline(always)]
 pub fn clear_bit<T>(value: &mut T, pos: usize)
 where
-    T: BitAndAssign + Shl<usize, Output=T> + Not<Output=T> + From<u8>
+    T: BitAndAssign + Shl<usize, Output = T> + Not<Output = T> + From<u8>
 {
     let mask = !(T::from(1u8) << pos);
     *value &= mask;
@@ -95,8 +98,8 @@ where
 #[inline(always)]
 pub fn test_bit<T>(value: &T, pos: usize) -> bool
 where
-    T: BitAndAssign + Shl<usize, Output=T> + BitAnd<Output=T>
-    + From<u8> + Copy + core::cmp::PartialOrd
+    T: BitAndAssign + Shl<usize, Output = T> + BitAnd<Output = T>
+    + From<u8> + Copy + PartialOrd
 {
     let mask = T::from(1u8) << pos;
     (*value & mask) != T::from(0u8)
