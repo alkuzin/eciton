@@ -23,6 +23,7 @@ pub mod bitmap;
 pub mod bitops;
 mod syscall;
 mod drivers;
+mod memory;
 mod debug;
 mod arch;
 
@@ -48,6 +49,9 @@ pub fn init(_boot_info: &MultibootInfo) {
 
     idt::init();
     pr_ok!("Initialized Interrupt Descriptor Table.");
+
+    memory::init();
+    pr_ok!("Initialized kernel memory manager.");
 
     syscall::init();
     pr_ok!("Initialized System call handler.");
