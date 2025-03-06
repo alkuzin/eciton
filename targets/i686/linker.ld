@@ -21,37 +21,37 @@ ENTRY(boot)
 SECTIONS
 {
     /* Conventional place for kernels to be loaded at by the bootloader. */
-	base_address = 0xC0000000;
-	. = 1M + base_address;
+    base_address = 0xC0000000;
+    . = 1M + base_address;
 
-    kernel_virt_start = .;
-    kernel_phys_start = kernel_virt_start - base_address;
+    kernel_virt_begin = .;
+    kernel_phys_begin = kernel_virt_begin - base_address;
 
-	.text ALIGN(4K) : AT(ADDR(.text) - base_address)
-	{
-		*(.multiboot)
-		*(.text)        /* All code located in this section. */
-	}
+    .text ALIGN(4K) : AT(ADDR(.text) - base_address)
+    {
+        *(.multiboot)
+        *(.text)        /* All code located in this section. */
+    }
 
-	/* Align read-only data (such as const variables) boundary. */
-	.rodata ALIGN(4K) : AT(ADDR(.rodata) - base_address)
-	{
-		*(.rodata)
-	}
+    /* Align read-only data (such as const variables) boundary. */
+    .rodata ALIGN(4K) : AT(ADDR(.rodata) - base_address)
+    {
+        *(.rodata)
+    }
 
-	/* Read/write data (initialized). */
-	.data ALIGN(4K) : AT(ADDR(.data) - base_address)
-	{
-		*(.data)
-	}
+    /* Read/write data (initialized). */
+    .data ALIGN(4K) : AT(ADDR(.data) - base_address)
+    {
+        *(.data)
+    }
 
-	/* Global/static variables (unitialized). */
-	.bss ALIGN(4K) : AT(ADDR(.bss) - base_address)
-	{
-		*(COMMON)
-		*(.bss)
-	}
+    /* Global/static variables (unitialized). */
+    .bss ALIGN(4K) : AT(ADDR(.bss) - base_address)
+    {
+        *(COMMON)
+        *(.bss)
+    }
 
-	kernel_virt_end = .;
-	kernel_phys_end = kernel_virt_end - base_address;
+    kernel_virt_end = .;
+    kernel_phys_end = kernel_virt_end - base_address;
 }
