@@ -56,8 +56,8 @@ where
     /// # Returns
     /// Index in data corresponding to `pos`.
     #[inline(always)]
-    fn index(pos: usize) -> usize {
-        pos / Self::bits_per_element()
+    fn index(&self, pos: usize) -> usize {
+        pos / self.bits_per_element()
     }
 
     /// Get position bitmask.
@@ -68,7 +68,7 @@ where
     /// # Returns
     /// Bitmask corresponding to `pos`.
     #[inline(always)]
-    fn bitmask(pos: usize) -> T {
+    fn bitmask(&self, pos: usize) -> T {
         T::from(1u8) << (pos % bits_per_type::<T>())
     }
 
@@ -82,8 +82,8 @@ where
     /// - `false` - otherwise.
     #[inline(always)]
     pub fn get(&self, pos: usize) -> bool {
-        let index   = Self::index(pos);
-        let bitmask = Self::bitmask(pos);
+        let index   = self.index(pos);
+        let bitmask = self.bitmask(pos);
 
         unsafe {
             (*self.data.add(index) & bitmask) != 0
@@ -96,8 +96,8 @@ where
     /// - `pos` - given bit position.
     #[inline(always)]
     pub fn set(&self, pos: usize) {
-        let index   = Self::index(pos);
-        let bitmask = Self::bitmask(pos);
+        let index   = self.index(pos);
+        let bitmask = self.bitmask(pos);
 
         unsafe {
             (*self.data.add(index) |= bitmask);
@@ -110,8 +110,8 @@ where
     /// - `pos` - given bit position.
     #[inline(always)]
     pub fn unset(&self, pos: usize) {
-        let index   = Self::index(pos);
-        let bitmask = Self::bitmask(pos);
+        let index   = self.index(pos);
+        let bitmask = self.bitmask(pos);
 
         unsafe {
             (*self.data.add(index) &= !bitmask);
@@ -123,7 +123,7 @@ where
     /// # Returns
     /// Number of bits per element.
     #[inline(always)]
-    pub fn bits_per_element() -> usize {
+    pub fn bits_per_element(&self) -> usize {
         bits_per_type::<T>()
     }
 
@@ -133,7 +133,7 @@ where
     /// Number of elements in data.
     #[inline(always)]
     pub fn capacity(&self) -> usize {
-        self.bits.div_ceil(Self::bits_per_element())
+        self.bits.div_ceil(self.bits_per_element())
     }
 
 }
