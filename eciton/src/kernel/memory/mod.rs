@@ -20,9 +20,10 @@ mod manager;
 mod layout;
 
 use super::{bitmap::Bitmap, bitops::bits_to_bytes};
-use crate::{pr_debug, BOOT_INFO};
+use crate::{pr_debug, pr_err, BOOT_INFO};
 use manager::MemoryManager;
 use layout::*;
+use core::{ffi::c_void, ptr};
 
 /// Page size in bytes.
 pub const PAGE_SIZE: usize = 4096;
@@ -40,6 +41,18 @@ pub const PAGE_SHIFT: u8 = 0xC;
 #[inline(always)]
 fn phys_to_page_num(addr: u32) -> usize {
     addr as usize >> PAGE_SHIFT
+}
+
+/// Convert page frame number to physical address.
+///
+/// # Parameters
+/// - `addr` - given page frame number.
+///
+/// # Returns
+/// Page frame physical address.
+#[inline(always)]
+fn page_num_to_phys(pfn: usize) -> u32 {
+    (pfn << PAGE_SHIFT) as u32
 }
 
 /// Initialize physical memory manager.
@@ -112,4 +125,137 @@ fn print_memory_info(mm: &MemoryManager, bm_addr: *const u32, bm_size: usize) {
     pr_debug!("Max pages:   {}.", mm.max_pages);
     pr_debug!("Set bitmap at address: <{:010p}>.", bm_addr);
     pr_debug!("Set bitmap size: {} bytes.", bm_size);
+}
+
+const PAGE_USED: bool = true;
+const PAGE_FREE: bool = false;
+
+/// Get free pages.
+///
+/// # Parameters
+/// - `order` - given power of two (finding 2^order pages).
+///
+/// # Returns
+/// Page position in bitmap - in case of success.
+/// Err() - otherwise.
+fn get_free_pages(mm: &MemoryManager, order: u32) -> Result<usize, ()> {
+    // Number of free pages to find.
+    let n = 1 << order;
+    let bits_per_element = mm.bitmap.bits_per_element();
+
+    #[allow(unused_assignments)]
+    let mut pos: usize = 0;
+
+    for i in 0..mm.bitmap.capacity() {
+        // Skip groups of used pages.
+        let group = unsafe { *mm.bitmap.data.add(i) };
+
+        if group != 0xFFFFFFFF {
+
+            // Handle each group.
+            for j in 0..bits_per_element {
+                pos = bits_per_element * i + j;
+
+                // Skip until free page.
+                while mm.bitmap.get(pos) == PAGE_USED {
+                    pos += 1;
+                }
+
+                if mm.bitmap.get(pos) == PAGE_FREE {
+                    // Check that number of free pages equals to
+                    // the number of needed pages (n).
+                    let mut is_found = false;
+
+                    for k in 0..n {
+                        if mm.bitmap.get(pos + k) == PAGE_USED {
+                            // Used page is found.
+                            is_found = true;
+                            break;
+                        }
+                    }
+
+                    // If used page was found check next group of pages.
+                    if is_found {
+                        continue;
+                    }
+                    else {
+                        return Ok(pos);
+                    }
+                }
+            }
+        }
+    }
+
+    Err(())
+}
+
+/// Allocate free zeroed pages.
+///
+/// # Parameters
+/// - `order` - given power of two (finding 2^order pages).
+///
+/// # Returns
+/// Page physical address - in case of success.
+/// Err - otherwise.
+pub fn alloc_pages(order: u32) -> Result<u32, ()> {
+    // Allocate 2^order pages.
+    let n = 1 << order;
+    let mut mm = manager::MM.lock();
+
+    // Not enough of free blocks.
+    if mm.max_pages - mm.used_pages <= n {
+        pr_err!("Error to allocate {} pages", n);
+        return Err(());
+    }
+
+    let start_pos = get_free_pages(&mm, order)?;
+    let addr      = page_num_to_phys(start_pos);
+
+    // Set page to zero.
+    unsafe {
+        ptr::write_bytes(addr as *mut c_void, 0, n << PAGE_SHIFT);
+    }
+
+    // Set n pages as used.
+    for i in 0..n {
+        mm.bitmap.set(start_pos + i);
+    }
+    mm.used_pages += n;
+
+    pr_debug!("Allocated {} pages at address <{:#010X}>", n, addr);
+    Ok(addr)
+}
+
+/// Free given pages.
+///
+/// # Parameters
+/// - `order` - given power of two (finding 2^order pages).
+///
+/// # Returns
+/// Ok  - in case of success.
+/// Err - otherwise.
+pub fn free_pages(addr: u32, order: u32) -> Result<(), ()> {
+    let mut mm = manager::MM.lock();
+
+    // Free 2^order pages.
+    let n = 1 << order;
+
+    // It is forbidden to free these pages, because they are
+    // containing GDT & multiboot info structure.
+    let begin_pos = phys_to_page_num(addr);
+    let end_pos   = phys_to_page_num(addr);
+    let range     = begin_pos..end_pos;
+
+    if range.contains(&0) || range.contains(&16) {
+        pr_err!("Error to free {} pages. Pages are in forbidden range {:#?}", n, range);
+        return Err(());
+    }
+
+    // Set n pages as free.
+    for i in 0..n {
+        mm.bitmap.unset(begin_pos + i);
+    }
+    mm.used_pages -= n;
+
+    Ok(())
 }
