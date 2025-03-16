@@ -21,9 +21,9 @@ mod layout;
 
 use super::{bitmap::Bitmap, bitops::bits_to_bytes};
 use crate::{pr_debug, pr_err, BOOT_INFO};
+use core::{ffi::c_void, ptr};
 use manager::MemoryManager;
 use layout::*;
-use core::{ffi::c_void, ptr};
 
 /// Page size in bytes.
 pub const PAGE_SIZE: usize = 4096;

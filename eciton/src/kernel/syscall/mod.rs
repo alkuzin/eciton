@@ -56,7 +56,7 @@ pub mod sys {
         vbe::Framebuffer,
     };
 
-    /// <SYSCALL> Get framebuffer.
+    /// Get framebuffer.
     ///
     /// # Parameters
     /// - `regs` - given pointer to interrupt register state.
@@ -83,5 +83,13 @@ pub mod sys {
 
         // Put success return value into eax register.
         register::write(Register::Eax, 0);
+    }
+
+    /// Allocate free pages.
+    ///
+    /// # Parameters
+    /// - `regs` - given pointer to interrupt register state.
+    pub fn alloc_pages(_regs: &IntRegisterState) {
+        todo!()
     }
 }

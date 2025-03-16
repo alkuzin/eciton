@@ -34,6 +34,7 @@ use crate::{
         multiboot::MultibootInfo
     }, pr_ok
 };
+use eciton_sdk::context::Context;
 
 /// Initialize kernel.
 ///
@@ -57,5 +58,5 @@ pub fn init(_boot_info: &MultibootInfo) {
     pr_ok!("Initialized System call handler.");
 
     pr_ok!("Running default libOS.");
-    ecos::libos_main();
+    ecos::libos_main(Context::default());
 }

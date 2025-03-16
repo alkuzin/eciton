@@ -14,13 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-//! EcitonSDK main module.
+//! Exokernel context structure declaration.
 
-#![no_std]                      // Do not use the standard library.
-#![no_main]                     // Do not use the standard main function.
-#![allow(clippy::empty_loop)]   // Ignore empty loop.
-#![allow(dead_code)]            // Allow unused values.
+// TODO: add detailed docs.
 
-pub mod context;
-pub mod arch;
-pub mod vbe;
+#[derive(Debug, Default)]
+pub struct Context {}
