@@ -1,6 +1,7 @@
 .vscode/
 target/
 build/
+.idea/
 iso/
 tmp/
 *.txt
