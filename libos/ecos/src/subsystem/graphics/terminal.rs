@@ -16,7 +16,7 @@
 
 //! Contains kernel terminal declaration.
 
-use crate::graphics::{Rgb, Color, Graphics, font};
+use crate::subsystem::graphics::{Rgb, Color, Graphics, font};
 use core::ptr::write_bytes;
 
 /// Default tabulation width.

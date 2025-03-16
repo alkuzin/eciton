@@ -16,7 +16,7 @@
 
 //! Contains libOS log functions.
 
-use crate::graphics::{Graphics, terminal::Terminal};
+use crate::subsystem::graphics::{Graphics, terminal::Terminal};
 use lazy_static::lazy_static;
 use spin::Mutex;
 use core::fmt;

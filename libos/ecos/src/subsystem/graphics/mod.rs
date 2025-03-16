@@ -18,6 +18,9 @@
 //! other graphics related functions.
 
 pub use eciton_sdk::vbe::Framebuffer;
+use super::{Subsystem, SubsystemResult};
+use crate::{api::exo, printk};
+
 pub mod terminal;
 pub mod font;
 
@@ -55,18 +58,51 @@ pub struct Graphics {
     pub fb: Framebuffer,
 }
 
-impl Graphics {
-    /// Construct new Graphics object.
+impl Subsystem for Graphics {
+    /// Initialize graphics subsystem.
     ///
-    /// # Parameters
-    /// - `boot_info` - given multiboot info structure.
-    ///
-    /// # Returns
-    /// New Graphics object.
-    pub fn new(fb: Framebuffer) -> Graphics {
-        Graphics { fb }
+    /// #Returns
+    /// - `Ok`       - in case of success.
+    /// - `Err(msg)` - error message otherwise.
+    fn init(&self) -> SubsystemResult {
+        // Do nothing.
+        Ok(())
     }
 
+    /// Run graphics subsystem.
+    ///
+    /// #Returns
+    /// - `Ok`       - in case of success.
+    /// - `Err(msg)` - error message otherwise.
+    fn run(&mut self) -> SubsystemResult {
+        // Get framebuffer info.
+        exo::getfb(&mut self.fb);
+
+        // Initialize kernel log functions.
+        printk::init(*self);
+        Ok(())
+    }
+
+    /// Shutdown graphics subsystem.
+    ///
+    /// #Returns
+    /// - `Ok`       - in case of success.
+    /// - `Err(msg)` - error message otherwise.
+    fn exit(&self) -> SubsystemResult {
+        // Do nothing.
+        Ok(())
+    }
+
+    /// Get subsystem name.
+    ///
+    /// #Returns
+    /// - Subsystem name in string representation.
+    fn name(&self) -> &'static str {
+        "Graphics Subsystem"
+    }
+}
+
+impl Graphics {
     /// Put pixel on the screen.
     ///
     /// # Parameters
