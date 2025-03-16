@@ -24,19 +24,25 @@
 /// EcitonSDK crate.
 extern crate eciton_sdk;
 
+pub mod subsystem;
 pub mod printk;
-mod graphics;
 mod api;
 
-use crate::{graphics::{Framebuffer, Graphics}, api::exo};
+use crate::{api::LibOSCore, subsystem::{SubsystemsArray, graphics::Graphics}};
+use eciton_sdk::context::Context;
 
 /// LibOS entry point.
-pub fn libos_main() -> ! {
-    let mut fb = Framebuffer::default();
-    exo::getfb(&mut fb);
+///
+/// # Parameters
+/// - `context` - given exokernel context structure.
+pub fn libos_main(context: Context) -> ! {
+    // Prepare subsystems before initialization.
+    let mut gfx = Graphics::default();
+    let subsystems: SubsystemsArray = [&mut gfx];
 
-    let gfx = Graphics::new(fb);
-    printk::init(gfx);
+    // Initialize libOS core module.
+    let mut libos_core = LibOSCore::new(context, subsystems);
+    libos_core.init().unwrap();
 
     pr_ok!("Initialized EcOS.");
 

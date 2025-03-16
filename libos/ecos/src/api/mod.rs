@@ -17,3 +17,47 @@
 //! EcOS API module.
 
 pub mod exo;
+
+use crate::{subsystem::{SubsystemsArray, SubsystemResult}, pr_debug};
+use eciton_sdk::context::Context;
+
+/// LibOS Core module struct.
+pub struct LibOSCore<'a> {
+    /// Exokernel context.
+    context: Context,
+    /// LibOS subsystems.
+    subsystems: SubsystemsArray<'a>,
+}
+impl<'a> LibOSCore<'a> {
+    /// Construct new LibOSCore object.
+    ///
+    /// # Parameters
+    /// - `context`    - given exokernel context struct.
+    /// - `subsystems` - given libOS subsystems array.
+    ///
+    /// #Returns
+    /// New LibOSCore object.
+    pub fn new(context: Context, subsystems: SubsystemsArray<'a>) -> Self {
+        Self { context, subsystems }
+    }
+
+    /// Initialize libOS subsystems.
+    ///
+    /// #Returns
+    /// - `Ok`       - in case of success.
+    /// - `Err(msg)` - error message otherwise.
+    pub fn init(&mut self) -> SubsystemResult {
+        // Initialize all libOS subsystems.
+        for subsystem in &mut self.subsystems {
+            let name = subsystem.name();
+
+            pr_debug!("Initializing subsystem: '{name}'");
+            subsystem.init()?;
+
+            pr_debug!("Running subsystem: '{name}'");
+            subsystem.run()?;
+        }
+
+        Ok(())
+    }
+}
