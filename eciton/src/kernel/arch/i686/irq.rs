@@ -28,7 +28,7 @@ pub use eciton_sdk::arch::i686::{
 use core::ptr;
 
 /// Null interrupt handler (used as placeholder for ROUTINES below).
-fn null_handler(_ : &IntRegisterState) {
+fn null_handler(_ : &mut IntRegisterState) {
     // Do nothing.
 }
 
@@ -65,7 +65,7 @@ pub fn free(irq: Irq) {
 /// # Parameters
 /// `regs` - given pointer to interrupt register state.
 #[unsafe(no_mangle)]
-pub extern "C" fn irq_handler(regs: &IntRegisterState) {
+pub extern "C" fn irq_handler(regs: &mut IntRegisterState) {
     // IRQ handler processes the interrupt by calling the appropriate
     // handler function based on the interrupt number.
     let handler = unsafe {
@@ -73,7 +73,7 @@ pub extern "C" fn irq_handler(regs: &IntRegisterState) {
     };
 
     // Handle interrupt if handler exists.
-    let null_handler = null_handler as for<'a> fn(&'a IntRegisterState);
+    let null_handler = null_handler as for<'a> fn(&'a mut IntRegisterState);
 
     if !ptr::fn_addr_eq(handler, null_handler) {
         handler(regs);
@@ -97,7 +97,7 @@ pub extern "C" fn irq_handler(regs: &IntRegisterState) {
 /// # Parameters
 /// - `regs` - given pointer to interrupt register state.
 #[unsafe(no_mangle)]
-pub extern "C" fn isr_handler(regs: &IntRegisterState) {
+pub extern "C" fn isr_handler(regs: &mut IntRegisterState) {
     // Handle exceptions.
     if regs.int_no < EXCEPTION_SIZE as u32 {
         let message = EXCEPTION_MESSSAGES[regs.int_no as usize];
@@ -106,7 +106,7 @@ pub extern "C" fn isr_handler(regs: &IntRegisterState) {
     }
 
     // Handle interrupt if handler exists.
-    let null_handler = null_handler as for<'a> fn(&'a IntRegisterState);
+    let null_handler = null_handler as for<'a> fn(&'a mut IntRegisterState);
     let handler = unsafe { ROUTINES[regs.int_no as usize] };
 
     if !ptr::fn_addr_eq(handler, null_handler) {

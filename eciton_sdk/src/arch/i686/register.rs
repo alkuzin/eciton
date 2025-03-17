@@ -61,6 +61,7 @@ pub enum Register {
 }
 
 /// CPU registers state struct.
+#[derive(Debug)]
 pub struct RegisterState {
     /// The value of the EAX register.
     pub eax: u32,

@@ -57,7 +57,7 @@ pub struct IntRegisterState {
 }
 
 /// Interrupt requests handler function alias.
-pub type InterruptHandler = fn (&IntRegisterState);
+pub type InterruptHandler = fn (&mut IntRegisterState);
 
 /// Number of exception messages.
 pub const EXCEPTION_SIZE: usize = 32;
