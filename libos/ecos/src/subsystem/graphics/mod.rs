@@ -76,7 +76,10 @@ impl Subsystem for Graphics {
     /// - `Err(msg)` - error message otherwise.
     fn run(&mut self) -> SubsystemResult {
         // Get framebuffer info.
-        exo::getfb(&mut self.fb);
+        match exo::getfb() {
+            Ok(fb) => self.fb = fb,
+            Err(_) => {},
+        }
 
         // Initialize kernel log functions.
         printk::init(*self);
