@@ -16,29 +16,91 @@
 
 //! Eciton exokernel syscall API main module.
 
-use eciton_sdk::vbe::Framebuffer;
+#![allow(unused_imports)]
+
+mod getfb;
+mod allocpg;
+
+pub use allocpg::allocpg;
+pub use getfb::getfb;
 use core::arch::asm;
 
 // TODO: make syscalls compatible with C.
 
-/// Get framebuffer syscall number.
-const SYSCALL_GETFB: u32 = 1;
+/// Eciton exokernel syscall interrupt number.
+const SYSCALL_NUM: u32 = 0x66;
 
-/// Get framebuffer info.
+/// Syscall arguments structure.
+#[derive(Debug, Default)]
+struct SyscallArgs {
+    /// Argument value stored in EAX register.
+    arg1: u32,
+    /// Argument value stored in EBX register.
+    arg2: u32,
+    /// Argument value stored in ECX register.
+    arg3: u32,
+    /// Argument value stored in EDX register.
+    arg4: u32,
+    /// Argument value stored in ESI register.
+    arg5: u32,
+    /// Argument value stored in EDI register.
+    arg6: u32,
+}
+
+/// Make system call.
 ///
 /// # Parameters
-/// - `fb` - given framebuffer info struct to fill.
+/// - `args` - given syscall arguments.
 ///
 /// # Returns
-/// - `0`  - in case of success.
-/// - `-1` - otherwise.
-pub fn getfb(fb: &mut Framebuffer) -> i32 {
-    let ret: i32;
-    unsafe {
-        asm!("int 0x66", in("eax") SYSCALL_GETFB, in("ebx") fb);
+/// - Syscall output.
+fn syscall(args: &SyscallArgs) -> SyscallArgs {
+    let mut ret = SyscallArgs::default();
 
-        // Get return value from eax register.
-        asm!("mov {0:e}, eax", out(reg) ret);
+    unsafe {
+        // Write syscall arguments in corresponding registers.
+        asm!(
+            "mov eax, {0:e}",
+            "mov ebx, {1:e}",
+            "mov ecx, {2:e}",
+            "mov edx, {3:e}",
+            "mov edi, {4:e}",
+            "mov esi, {5:e}",
+            "int {6}",
+            in(reg) args.arg1,
+            in(reg) args.arg2,
+            in(reg) args.arg3,
+            in(reg) args.arg4,
+            in(reg) args.arg5,
+            in(reg) args.arg6,
+            const SYSCALL_NUM,
+        );
+
+        // Read syscall arguments from corresponding registers.
+        asm!(
+            "mov {0:e}, eax",
+            "mov {1:e}, ebx",
+            "mov {2:e}, ecx",
+            "mov {3:e}, edx",
+            "mov {4:e}, edi",
+            "mov {5:e}, esi",
+            out(reg) ret.arg1,
+            out(reg) ret.arg2,
+            out(reg) ret.arg3,
+            out(reg) ret.arg4,
+            out(reg) ret.arg5,
+            out(reg) ret.arg6,
+        );
     }
+
     ret
+}
+
+/// Syscall numbers enumeration.
+#[repr(u32)]
+pub enum Syscall {
+    /// Get framebuffer syscall number.
+    Getfb = 1,
+    /// Alloc memory pages syscall number.
+    AllocPg = 2,
 }
