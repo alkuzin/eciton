@@ -16,7 +16,7 @@
 
 //! Contains kernel terminal declaration.
 
-use crate::subsystem::graphics::{Rgb, Color, Graphics, font};
+use crate::subsystem::graphics::{Rgb, Color, GraphicsSub, font};
 use core::ptr::write_bytes;
 
 /// Default tabulation width.
@@ -26,7 +26,7 @@ const TAB_WIDTH: u32 = 4;
 #[derive(Default)]
 pub struct Terminal {
     /// Graphics handler.
-    gfx: Graphics,
+    gfx: GraphicsSub,
     /// Screen height.
     height: i32,
     /// Screen width.
@@ -67,7 +67,7 @@ impl Terminal {
     ///
     /// # Parameters
     /// - `gfx` - graphics handler object.
-    pub fn init(&mut self, gfx: Graphics) {
+    pub fn init(&mut self, gfx: GraphicsSub) {
         self.gfx    = gfx;
         self.x_pos  = 0;
         self.y_pos  = 0;

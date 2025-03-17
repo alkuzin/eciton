@@ -16,7 +16,7 @@
 
 //! Contains libOS log functions.
 
-use crate::subsystem::graphics::{Graphics, terminal::Terminal};
+use crate::subsystem::graphics::{GraphicsSub, terminal::Terminal};
 use lazy_static::lazy_static;
 use spin::Mutex;
 use core::fmt;
@@ -41,7 +41,7 @@ lazy_static! {
 ///
 /// # Parameters:
 /// - `gfx` - given graphics handeling object.
-pub fn init(gfx: Graphics) {
+pub fn init(gfx: GraphicsSub) {
     WRITER.lock().init(gfx);
 }
 

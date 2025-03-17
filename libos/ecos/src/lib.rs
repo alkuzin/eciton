@@ -28,7 +28,10 @@ pub mod subsystem;
 pub mod printk;
 mod api;
 
-use crate::{api::LibOSCore, subsystem::{SubsystemsArray, graphics::Graphics}};
+use crate::{
+    api::LibOSCore,
+    subsystem::{SubsystemsArray, graphics::GraphicsSub, memory::MemorySub}
+};
 use eciton_sdk::context::Context;
 
 /// LibOS entry point.
@@ -37,8 +40,13 @@ use eciton_sdk::context::Context;
 /// - `context` - given exokernel context structure.
 pub fn libos_main(context: Context) -> ! {
     // Prepare subsystems before initialization.
-    let mut gfx = Graphics::default();
-    let subsystems: SubsystemsArray = [&mut gfx];
+    let mut graphics_subsystem = GraphicsSub::default();
+    let mut memory_subsystem   = MemorySub::default();
+
+    let subsystems: SubsystemsArray = [
+        &mut graphics_subsystem,
+        &mut memory_subsystem
+    ];
 
     // Initialize libOS core module.
     let mut libos_core = LibOSCore::new(context, subsystems);

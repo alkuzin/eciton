@@ -51,14 +51,14 @@ pub enum Color {
     Gray  = rgb!(0xBF, 0xBF, 0xBF),
 }
 
-/// Graphics handeling struct.
+/// Graphics subsystem struct.
 #[derive(Default, Clone, Copy)]
-pub struct Graphics {
+pub struct GraphicsSub {
     /// VESA framebuffer struct.
     pub fb: Framebuffer,
 }
 
-impl Subsystem for Graphics {
+impl Subsystem for GraphicsSub {
     /// Initialize graphics subsystem.
     ///
     /// #Returns
@@ -105,7 +105,7 @@ impl Subsystem for Graphics {
     }
 }
 
-impl Graphics {
+impl GraphicsSub {
     /// Put pixel on the screen.
     ///
     /// # Parameters
