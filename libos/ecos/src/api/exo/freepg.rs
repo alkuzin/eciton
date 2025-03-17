@@ -14,40 +14,32 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-//! Allocate memory pages syscall implementation.
+//! Free memory pages syscall implementation.
 
-use super::{syscall, SyscallArgs, Syscall};
+use super::{syscall, SyscallArgs, Syscall, allocpg::AllocUnit};
 
-#[derive(Debug, Default)]
-pub struct AllocUnit {
-    /// Memory page address.
-    pub addr: u32,
-    /// Number of pages (2^order pages).
-    pub order: u32,
-}
-
-/// Allocate memory pages.
+/// Free memory pages.
 ///
 /// # Parameters
-/// - `order` - given power of two (finding 2^order pages).
+/// - `unit` - given allocation unit (allocated by allopg syscall).
 ///
 /// # Returns
-/// - `AllocUnit` - in case of success.
-/// - `Err`       - otherwise.
-pub fn allocpg(order: u32) -> Result<AllocUnit, ()> {
+/// - `Ok`  - in case of success.
+/// - `Err` - otherwise.
+pub fn freepg(unit: AllocUnit) -> Result<(), ()> {
     // Set syscall arguments.
     let mut args = SyscallArgs::default();
-    args.arg1    = Syscall::AllocPg as u32;
-    args.arg2    = order;
+    args.arg1    = Syscall::FreePg as u32;
+    args.arg2    = unit.addr;
+    args.arg3    = unit.order;
 
     // Get syscall output.
     let output = syscall(&args);
     let ret    = output.arg1;
-    let addr   = output.arg2;
 
     // Handle return value.
     match ret {
-        0 => Ok(AllocUnit {addr, order}),
+        0 => Ok(()),
         _ => Err(()),
     }
 }

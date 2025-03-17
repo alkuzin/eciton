@@ -18,10 +18,12 @@
 
 #![allow(unused_imports)]
 
-mod getfb;
 mod allocpg;
+mod freepg;
+mod getfb;
 
 pub use allocpg::allocpg;
+pub use freepg::freepg;
 pub use getfb::getfb;
 use core::arch::asm;
 
@@ -103,4 +105,6 @@ pub enum Syscall {
     Getfb = 1,
     /// Alloc memory pages syscall number.
     AllocPg = 2,
+    /// Free memory pages syscall number.
+    FreePg = 3,
 }
