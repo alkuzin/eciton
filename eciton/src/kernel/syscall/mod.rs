@@ -28,13 +28,14 @@ use eciton_sdk::arch::i686::irq::InterruptHandler;
 pub const SYSCALL_NUM: usize = 0x66;
 
 /// Total number of system calls.
-const SYSCALL_COUNT: usize = 3;
+const SYSCALL_COUNT: usize = 4;
 
 /// Table of syscall functions.
 static SYSCALL_TABLE: [InterruptHandler;SYSCALL_COUNT] = [
     sys::null,
     sys::getfb,
     sys::allocpg,
+    sys::freepg,
 ];
 
 /// Handle syscalls.

@@ -257,5 +257,6 @@ pub fn free_pages(addr: u32, order: u32) -> Result<(), ()> {
     }
     mm.used_pages -= n;
 
+    pr_debug!("Freed {} pages at address <{:#010X}>", n, addr);
     Ok(())
 }

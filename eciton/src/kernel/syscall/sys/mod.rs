@@ -19,9 +19,11 @@
 pub mod allocpg;
 pub mod getfb;
 pub mod null;
+pub mod freepg;
 
 use eciton_sdk::{arch::i686::{irq::IntRegisterState}};
 pub use allocpg::allocpg;
+pub use freepg::freepg;
 pub use getfb::getfb;
 pub use null::null;
 
