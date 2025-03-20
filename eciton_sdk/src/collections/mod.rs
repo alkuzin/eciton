@@ -33,7 +33,7 @@ pub struct Node<T> {
 #[derive(Debug)]
 pub struct StaticList<T, const CAPACITY: usize> {
     /// Array of nodes.
-    nodes: [Node<T>; CAPACITY],
+    nodes: [Node<T>;CAPACITY],
     /// List head node.
     head: Option<usize>,
     /// List tail node.
@@ -51,7 +51,7 @@ impl<T, const CAPACITY: usize> StaticList<T, CAPACITY> where T: Copy {
         let empty_node: Node<T> = unsafe { mem::zeroed() };
 
         Self {
-            nodes: [empty_node; CAPACITY],
+            nodes: [empty_node;CAPACITY],
             head:  None,
             tail:  None,
             size:  0,
@@ -148,5 +148,54 @@ impl<T, const CAPACITY: usize> StaticList<T, CAPACITY> where T: Copy {
         }
 
         Ok(())
+    }
+
+    /// Remove value from the end of the list.
+    ///
+    /// # Result
+    /// - `Ok`       - in case of success.
+    /// - `Err(msg)` - error message - otherwise.
+    pub fn pop(&mut self) -> Result<(), &'static str> {
+        if self.size == 0 {
+            return Err("Error to pop value from empty list");
+        }
+        else {
+            // Check if list is not empty.
+            if let Some(tail) = self.tail {
+                // Pop previous node.
+                if let Some(prev) = self.nodes[tail].prev {
+                    self.nodes[prev].next = None;
+                    self.size -= 1;
+                    self.nodes[tail] = unsafe { mem::zeroed() };
+                    self.tail = Some(prev);
+                }
+                else {
+                    // Pop head node.
+                    self.nodes[tail] = unsafe { mem::zeroed() };
+                    self.head = None;
+                    self.tail = None;
+                    self.size -= 1;
+                }
+            }
+            else {
+                return Err("Error to pop value from empty list");
+            }
+        }
+
+        Ok(())
+    }
+}
+
+/// Default static list.
+impl<T, const CAPACITY: usize> Default for StaticList<T, CAPACITY> where T: Copy {
+    fn default() -> Self {
+        let empty_node: Node<T> = unsafe { mem::zeroed() };
+
+        Self {
+            nodes: [empty_node;CAPACITY],
+            head: None,
+            tail: None,
+            size: 0,
+        }
     }
 }
