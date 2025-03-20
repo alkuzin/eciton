@@ -21,6 +21,8 @@
 #![allow(clippy::empty_loop)]   // Ignore empty loop.
 #![allow(dead_code)]            // Allow unused values.
 
+pub mod collections;
 pub mod context;
 pub mod arch;
+pub mod math;
 pub mod vbe;
