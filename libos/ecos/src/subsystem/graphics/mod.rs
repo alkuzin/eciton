@@ -64,7 +64,7 @@ impl Subsystem for GraphicsSub {
     /// # Returns
     /// - `Ok`       - in case of success.
     /// - `Err(msg)` - error message otherwise.
-    fn init(&self) -> SubsystemResult {
+    fn init(&mut self) -> SubsystemResult {
         // Do nothing.
         Ok(())
     }
@@ -91,7 +91,7 @@ impl Subsystem for GraphicsSub {
     /// # Returns
     /// - `Ok`       - in case of success.
     /// - `Err(msg)` - error message otherwise.
-    fn exit(&self) -> SubsystemResult {
+    fn exit(&mut self) -> SubsystemResult {
         // Do nothing.
         Ok(())
     }

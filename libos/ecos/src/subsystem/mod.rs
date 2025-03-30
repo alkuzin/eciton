@@ -17,6 +17,7 @@
 //! LibOS subsystems main module.
 
 pub mod graphics;
+pub mod memory;
 
 /// Return value of some subsystem methods.
 pub type SubsystemResult = Result<(), &'static str>;
@@ -28,7 +29,7 @@ pub trait Subsystem {
     /// # Returns
     /// - `Ok`       - in case of success.
     /// - `Err(msg)` - error message otherwise.
-    fn init(&self) -> SubsystemResult;
+    fn init(&mut self) -> SubsystemResult;
 
     /// Run subsystem.
     ///
@@ -46,7 +47,7 @@ pub trait Subsystem {
     /// # Returns
     /// - `Ok`       - in case of success.
     /// - `Err(msg)` - error message otherwise.
-    fn exit(&self) -> SubsystemResult;
+    fn exit(&mut self) -> SubsystemResult;
 
     /// Get subsystem name.
     ///
