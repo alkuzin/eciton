@@ -61,7 +61,7 @@ pub struct GraphicsSub {
 impl Subsystem for GraphicsSub {
     /// Initialize graphics subsystem.
     ///
-    /// #Returns
+    /// # Returns
     /// - `Ok`       - in case of success.
     /// - `Err(msg)` - error message otherwise.
     fn init(&self) -> SubsystemResult {
@@ -71,7 +71,7 @@ impl Subsystem for GraphicsSub {
 
     /// Run graphics subsystem.
     ///
-    /// #Returns
+    /// # Returns
     /// - `Ok`       - in case of success.
     /// - `Err(msg)` - error message otherwise.
     fn run(&mut self) -> SubsystemResult {
@@ -88,7 +88,7 @@ impl Subsystem for GraphicsSub {
 
     /// Shutdown graphics subsystem.
     ///
-    /// #Returns
+    /// # Returns
     /// - `Ok`       - in case of success.
     /// - `Err(msg)` - error message otherwise.
     fn exit(&self) -> SubsystemResult {
@@ -98,7 +98,7 @@ impl Subsystem for GraphicsSub {
 
     /// Get subsystem name.
     ///
-    /// #Returns
+    /// # Returns
     /// - Subsystem name in string representation.
     fn name(&self) -> &'static str {
         "Graphics Subsystem"

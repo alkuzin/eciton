@@ -18,32 +18,36 @@
 
 pub mod exo;
 
-use crate::{subsystem::{SubsystemsArray, SubsystemResult}, pr_debug};
+use crate::{subsystem::{Subsystem, SubsystemResult}, pr_debug};
 use eciton_sdk::context::Context;
 
+/// Subsystem array alias.
+pub type Subsystems<'a, const COUNT: usize> = [&'a mut dyn Subsystem;COUNT];
+
 /// LibOS Core module struct.
-pub struct LibOSCore<'a> {
+pub struct LibOSCore<'a, const SIZE: usize> {
     /// Exokernel context.
     context: Context,
     /// LibOS subsystems.
-    subsystems: SubsystemsArray<'a>,
+    subsystems: Subsystems<'a, SIZE>,
 }
-impl<'a> LibOSCore<'a> {
+
+impl<'a, const SIZE: usize> LibOSCore<'a, SIZE> {
     /// Construct new LibOSCore object.
     ///
     /// # Parameters
     /// - `context`    - given exokernel context struct.
     /// - `subsystems` - given libOS subsystems array.
     ///
-    /// #Returns
+    /// # Returns
     /// New LibOSCore object.
-    pub fn new(context: Context, subsystems: SubsystemsArray<'a>) -> Self {
+    pub fn new(context: Context, subsystems: Subsystems<'a, SIZE>) -> Self {
         Self { context, subsystems }
     }
 
     /// Initialize libOS subsystems.
     ///
-    /// #Returns
+    /// # Returns
     /// - `Ok`       - in case of success.
     /// - `Err(msg)` - error message otherwise.
     pub fn init(&mut self) -> SubsystemResult {
@@ -51,11 +55,9 @@ impl<'a> LibOSCore<'a> {
         for subsystem in &mut self.subsystems {
             let name = subsystem.name();
 
-            pr_debug!("Initializing subsystem: '{name}'");
             subsystem.init()?;
-
-            pr_debug!("Running subsystem: '{name}'");
             subsystem.run()?;
+            pr_debug!("Initialized subsystem: '{name}'");
         }
 
         Ok(())

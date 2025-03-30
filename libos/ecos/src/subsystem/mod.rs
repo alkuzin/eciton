@@ -21,17 +21,11 @@ pub mod graphics;
 /// Return value of some subsystem methods.
 pub type SubsystemResult = Result<(), &'static str>;
 
-/// Subsystem array alias (used for `LibOSCore`).
-pub type SubsystemsArray<'a> = [&'a mut dyn Subsystem;SUBSYSTEM_COUNT];
-
-/// Number of libOS subsystems.
-pub const SUBSYSTEM_COUNT: usize = 1;
-
 /// LibOS subsystem trait.
 pub trait Subsystem {
     /// Initialize subsystem.
     ///
-    /// #Returns
+    /// # Returns
     /// - `Ok`       - in case of success.
     /// - `Err(msg)` - error message otherwise.
     fn init(&self) -> SubsystemResult;
@@ -42,21 +36,21 @@ pub trait Subsystem {
     /// Can also be useful for initializing mutable
     /// subsystem struct members.
     ///
-    /// #Returns
+    /// # Returns
     /// - `Ok`       - in case of success.
     /// - `Err(msg)` - error message otherwise.
     fn run(&mut self) -> SubsystemResult;
 
     /// Shutdown subsystem.
     ///
-    /// #Returns
+    /// # Returns
     /// - `Ok`       - in case of success.
     /// - `Err(msg)` - error message otherwise.
     fn exit(&self) -> SubsystemResult;
 
     /// Get subsystem name.
     ///
-    /// #Returns
+    /// # Returns
     /// - Subsystem name in string representation.
     fn name(&self) -> &'static str;
 }

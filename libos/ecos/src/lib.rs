@@ -29,8 +29,8 @@ pub mod printk;
 mod api;
 
 use crate::{
-    api::LibOSCore,
-    subsystem::{SubsystemsArray, graphics::GraphicsSub, memory::MemorySub}
+    api::{Subsystems, LibOSCore},
+    subsystem::{ graphics::GraphicsSub, }
 };
 use eciton_sdk::context::Context;
 
@@ -41,17 +41,14 @@ use eciton_sdk::context::Context;
 pub fn libos_main(context: Context) -> ! {
     // Prepare subsystems before initialization.
     let mut graphics_subsystem = GraphicsSub::default();
-    let mut memory_subsystem   = MemorySub::default();
 
-    let subsystems: SubsystemsArray = [
+    let subsystems: Subsystems<1> = [
         &mut graphics_subsystem,
-        &mut memory_subsystem
     ];
 
     // Initialize libOS core module.
     let mut libos_core = LibOSCore::new(context, subsystems);
     libos_core.init().unwrap();
-
     pr_ok!("Initialized EcOS.");
 
     // Halt libOS.
