@@ -19,7 +19,7 @@
 mod manager;
 mod layout;
 
-use super::{bitmap::Bitmap, bitops::bits_to_bytes};
+use eciton_sdk::{collections::Bitmap, bitops::bits_to_bytes};
 use crate::{pr_debug, pr_err, BOOT_INFO};
 use core::{ffi::c_void, ptr};
 use manager::MemoryManager;
@@ -72,10 +72,10 @@ pub fn init() {
     let kernel_end_ptr = kernel_end_vaddr() as *const u32;
     let bitmap_addr    = unsafe { kernel_end_ptr.add(STACK_SIZE) as *mut u32};
     let bitmap_size    = bits_to_bytes(mm.max_pages);
-    let bitmap_data    = mm.bitmap.data;
 
     // Physical memory bitmap starts right after the kernel end.
-    mm.bitmap = Bitmap::new(bitmap_addr, bitmap_size);
+    mm.bitmap = Bitmap::from_pointer(bitmap_addr, bitmap_size);
+    let bitmap_data = mm.bitmap.as_pointer().unwrap();
 
     unsafe {
         // Mark all memory as used.
@@ -148,7 +148,7 @@ fn get_free_pages(mm: &MemoryManager, order: u32) -> Result<usize, ()> {
 
     for i in 0..mm.bitmap.capacity() {
         // Skip groups of used pages.
-        let group = unsafe { *mm.bitmap.data.add(i) };
+        let group = unsafe { *mm.bitmap.as_pointer().unwrap().add(i) };
 
         if group != 0xFFFFFFFF {
 

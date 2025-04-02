@@ -19,12 +19,13 @@
 use crate::{
     kernel::multiboot::{
         MultibootInfo,
-        MultibootMmapEntry,
-        MultibootMemoryType
+        MultibootMemoryType,
+        MultibootMmapEntry
     }, pr_debug
 };
 
-use super::{super::bitmap::Bitmap, phys_to_page_num, PAGE_SHIFT};
+use super::{phys_to_page_num, PAGE_SHIFT};
+use eciton_sdk::collections::Bitmap;
 use lazy_static::lazy_static;
 use spin::Mutex;
 
@@ -40,7 +41,7 @@ pub struct MemoryManager {
     /// Number of used pages.
     pub used_pages: usize,
     /// Physical memory map.
-    pub bitmap: Bitmap<u32>,
+    pub bitmap: Bitmap<u32, 0>,
     // TODO: add free_pages: usize,
 }
 

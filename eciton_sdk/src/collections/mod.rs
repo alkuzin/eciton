@@ -18,6 +18,9 @@
 
 use core::mem;
 
+mod bitmap;
+pub use bitmap::Bitmap;
+
 /// List node structure.
 #[derive(Debug, Default, Copy, Clone)]
 pub struct Node<T> {
@@ -30,7 +33,7 @@ pub struct Node<T> {
 }
 
 /// Linked list structure with no heap allocation.
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct StaticList<T, const CAPACITY: usize> {
     /// Array of nodes.
     nodes: [Node<T>;CAPACITY],
@@ -98,6 +101,16 @@ impl<T, const CAPACITY: usize> StaticList<T, CAPACITY> where T: Copy {
         }
 
         None
+    }
+
+    /// Check if list is empty.
+    ///
+    /// # Returns
+    /// - `true`  - if list is empty.
+    /// - `false` - otherwise.
+    #[inline(always)]
+    pub fn is_empty(&self) -> bool {
+        self.size == 0
     }
 
     /// Append new value.
