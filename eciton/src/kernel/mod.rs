@@ -19,8 +19,6 @@
 pub mod multiboot;
 pub mod printk;
 pub mod panic;
-pub mod bitmap;
-pub mod bitops;
 mod syscall;
 mod drivers;
 mod memory;
@@ -28,11 +26,13 @@ mod debug;
 mod arch;
 
 use crate::{
-    ecos, kernel::{
+    kernel::{
         arch::i686::{gdt, idt},
         drivers::uart::Uart,
         multiboot::MultibootInfo
-    }, pr_ok
+    },
+    ecos,
+    pr_ok
 };
 use eciton_sdk::context::Context;
 
