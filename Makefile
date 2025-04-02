@@ -40,12 +40,15 @@ ASM_SRC  = $(ASM_PATH)/boot \
 ASM_SRCS = $(addsuffix .asm, $(ASM_SRC))
 ASM_OBJS = $(addsuffix .o,   $(ASM_SRC))
 
+$(KERNEL_STATIC_LIB):
+	cargo build --manifest-path $(KERNEL_PATH)/Cargo.toml
+
 OBJS = $(ASM_OBJS) $(KERNEL_STATIC_LIB)
 
 $(ASM_PATH)/%.o: $(ASM_PATH)/%.asm
 	$(ASM) $(ASM_FLAGS) -c $< -o $@
 
-$(NAME): $(OBJS)
+$(NAME): $(OBJS) $(KERNEL_STATIC_LIB)
 	cargo build --manifest-path $(KERNEL_PATH)/Cargo.toml
 	$(LINKER) $(LINKER_FLAGS) -o $(KERNEL_ELF) -T $(TARGETS_PATH)/linker.ld $(OBJS)
 
