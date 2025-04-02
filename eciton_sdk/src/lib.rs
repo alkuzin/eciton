@@ -23,6 +23,49 @@
 
 pub mod collections;
 pub mod context;
+pub mod bitops;
 pub mod arch;
 pub mod math;
 pub mod vbe;
+
+/// Trait for memory units conversion.
+pub trait MemoryUnit {
+    /// Convert type representing bytes to KB.
+    fn kb(&self) -> usize;
+
+    /// Convert type representing bytes to MB.
+    fn mb(&self) -> usize;
+
+    /// Convert type representing bytes to GB.
+    fn gb(&self) -> usize;
+}
+
+/// Implementation of memory units conversion for usize.
+impl MemoryUnit for usize {
+    /// Convert type representing bytes to KB.
+    ///
+    /// # Returns
+    /// - The number of KB from given number of bytes.
+    #[inline(always)]
+    fn kb(&self) -> usize {
+        self << 10
+    }
+
+    /// Convert type representing bytes to MB.
+    ///
+    /// # Returns
+    /// - The number of MB from given number of bytes.
+    #[inline(always)]
+    fn mb(&self) -> usize {
+        self << 20
+    }
+
+    /// Convert type representing bytes to GB.
+    ///
+    /// # Returns
+    /// - The number of GB from given number of bytes.
+    #[inline(always)]
+    fn gb(&self) -> usize {
+        self << 30
+    }
+}
