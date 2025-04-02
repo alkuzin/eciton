@@ -33,10 +33,6 @@ pub trait Subsystem {
 
     /// Run subsystem.
     ///
-    /// # Details
-    /// Can also be useful for initializing mutable
-    /// subsystem struct members.
-    ///
     /// # Returns
     /// - `Ok`       - in case of success.
     /// - `Err(msg)` - error message otherwise.
