@@ -17,7 +17,6 @@
 //! SLAB allocator slab declarations.
 
 use eciton_sdk::{bitops::bits_per_type, collections::Bitmap};
-use super::Page;
 
 /// Constant representing used object in bitmap.
 const OBJECT_USED: bool = true;
@@ -25,11 +24,8 @@ const OBJECT_USED: bool = true;
 /// Constant representing free object in bitmap.
 const OBJECT_FREE: bool = false;
 
-/// Min size of slab object.
-const MIN_OBJECT_SIZE: usize = 8;
-
 /// Max number of objects that can be managed by bitmap.
-const BITMAP_MAX_OBJECTS: usize = (Page::size() / MIN_OBJECT_SIZE);
+const BITMAP_MAX_OBJECTS: usize = 256;
 
 /// Bitmap array size (for u32).
 const BITMAP_COUNT: usize = BITMAP_MAX_OBJECTS / bits_per_type::<u32>();
