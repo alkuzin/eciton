@@ -93,7 +93,7 @@ pub fn ceil(x: f64) -> f64 {
 ///
 /// # Returns
 /// - The closest power of 2.
-pub fn roundup_pow_of_two(mut n: usize) -> usize {
+pub const fn roundup_pow_of_two(mut n: usize) -> usize {
     if n == 0 {
         return 1;
     }
