@@ -44,7 +44,6 @@ static SYSCALL_TABLE: [InterruptHandler;SYSCALL_COUNT] = [
 /// - `regs` - given pointer to interrupt register state.
 fn syscall_handler(regs: &mut IntRegisterState) {
     pr_debug!("SYSCALL HANDLER BEGIN");
-    pr_debug!("{:#X?}", regs);
 
     let syscall_number = regs.eax as usize;
     let syscall_option = SYSCALL_TABLE.get(syscall_number);

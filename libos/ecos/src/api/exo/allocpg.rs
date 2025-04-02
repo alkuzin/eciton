@@ -18,27 +18,27 @@
 
 use super::{syscall, SyscallArgs, Syscall};
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct AllocUnit {
     /// Memory page address.
     pub addr: u32,
-    /// Number of pages (2^order pages).
-    pub order: u32,
+    /// Number of pages.
+    pub count: u32,
 }
 
 /// Allocate memory pages.
 ///
 /// # Parameters
-/// - `order` - given power of two (finding 2^order pages).
+/// - `count` - given number of pages to allocate.
 ///
 /// # Returns
 /// - `AllocUnit` - in case of success.
 /// - `Err`       - otherwise.
-pub fn allocpg(order: u32) -> Result<AllocUnit, ()> {
+pub fn allocpg(count: u32) -> Result<AllocUnit, ()> {
     // Set syscall arguments.
     let mut args = SyscallArgs::default();
     args.arg1    = Syscall::AllocPg as u32;
-    args.arg2    = order;
+    args.arg2    = count;
 
     // Get syscall output.
     let output = syscall(&args);
@@ -47,7 +47,7 @@ pub fn allocpg(order: u32) -> Result<AllocUnit, ()> {
 
     // Handle return value.
     match ret {
-        0 => Ok(AllocUnit {addr, order}),
+        0 => Ok(AllocUnit {addr, count}),
         _ => Err(()),
     }
 }

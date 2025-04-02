@@ -22,7 +22,7 @@ mod allocpg;
 mod freepg;
 mod getfb;
 
-pub use allocpg::allocpg;
+pub use allocpg::{allocpg, AllocUnit};
 pub use freepg::freepg;
 pub use getfb::getfb;
 use core::arch::asm;

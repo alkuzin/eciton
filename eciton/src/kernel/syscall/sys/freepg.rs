@@ -24,24 +24,23 @@ use super::{IntRegisterState, SyscallResult};
 /// # Parameters
 /// - `regs` - given pointer to interrupt register state.
 pub fn freepg(regs: &mut IntRegisterState) {
-    // Get order (allocating 2^order pages).
     let addr  = regs.ebx;
-    let order = regs.ecx;
+    let count = regs.ecx;
 
-    if addr == 0 || order == 0 {
+    if addr == 0 || count == 0 {
         // Error return value -1.
         regs.eax = SyscallResult::Error as u32;
         return;
     }
 
     // TODO: check range of order.
-    match free_pages(addr, order) {
+    match free_pages(addr, count) {
         Ok(_)  => {
             // Put return value into eax register.
             regs.eax = SyscallResult::Success as u32;
         },
         Err(_) => {
-            pr_err!("Error to free 2^{order} pages at address <{addr}>");
+            pr_err!("Error to free {count} pages at address <{addr}>");
             // Error return value -1.
             regs.eax = SyscallResult::Error as u32;
         }

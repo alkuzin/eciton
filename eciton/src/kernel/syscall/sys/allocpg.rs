@@ -24,16 +24,15 @@ use super::{IntRegisterState, SyscallResult};
 /// # Parameters
 /// - `regs` - given pointer to interrupt register state.
 pub fn allocpg(regs: &mut IntRegisterState) {
-    // Get order (allocating 2^order pages).
-    let order = regs.ebx;
+    // Get number of pages to allocate.
+    let count = regs.ebx;
 
-    // TODO: check range of order.
-    let addr = alloc_pages(order).unwrap_or_else(|_| {
-        pr_err!("Error to allocate 2^{order} pages");
+    let addr = alloc_pages(count).unwrap_or_else(|_| {
+        pr_err!("Error to allocate {count} pages");
         0
     });
 
-    if addr == 0 {
+    if addr == 0 || count == 0 {
         // Error return value -1.
         regs.eax = SyscallResult::Error as u32;
         return;

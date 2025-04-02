@@ -25,6 +25,9 @@ use core::{ffi::c_void, ptr};
 use manager::MemoryManager;
 use layout::*;
 
+// TODO: move Page struct to EcitonSDK
+// TODO: replace with Page struct
+
 /// Page size in bytes.
 pub const PAGE_SIZE: usize = 4096;
 
@@ -127,20 +130,23 @@ fn print_memory_info(mm: &MemoryManager, bm_addr: *const u32, bm_size: usize) {
     pr_debug!("Set bitmap size: {} bytes.", bm_size);
 }
 
-const PAGE_USED: bool = true;
+/// Constant representing free object in bitmap.
 const PAGE_FREE: bool = false;
+
+/// Constant representing used object in bitmap.
+const PAGE_USED: bool = true;
 
 /// Get free pages.
 ///
 /// # Parameters
-/// - `order` - given power of two (finding 2^order pages).
+/// - `count` - given number of pages to find.
 ///
 /// # Returns
 /// Page position in bitmap - in case of success.
 /// Err() - otherwise.
-fn get_free_pages(mm: &MemoryManager, order: u32) -> Result<usize, ()> {
+fn get_free_pages(mm: &MemoryManager, count: u32) -> Result<usize, ()> {
     // Number of free pages to find.
-    let n = 1 << order;
+    let n = count as usize;
     let bits_per_element = mm.bitmap.bits_per_element();
 
     #[allow(unused_assignments)]
@@ -192,23 +198,30 @@ fn get_free_pages(mm: &MemoryManager, order: u32) -> Result<usize, ()> {
 /// Allocate free zeroed pages.
 ///
 /// # Parameters
-/// - `order` - given power of two (finding 2^order pages).
+/// - `count` - given number of pages to allocate.
 ///
 /// # Returns
 /// Page physical address - in case of success.
 /// Err - otherwise.
-pub fn alloc_pages(order: u32) -> Result<u32, ()> {
-    // Allocate 2^order pages.
-    let n = 1 << order;
+pub fn alloc_pages(count: u32) -> Result<u32, ()> {
     let mut mm = manager::MM.lock();
+    let n      = count as usize;
 
-    // Not enough of free blocks.
-    if mm.max_pages - mm.used_pages <= n {
-        pr_err!("Error to allocate {} pages", n);
+    // Handle incorrect number of pages.
+    if n >= mm.max_pages {
+        pr_err!("Page count exceed total number of pages");
         return Err(());
     }
 
-    let start_pos = get_free_pages(&mm, order)?;
+    // Handle not enough of free blocks.
+    let free_pages = mm.max_pages - mm.used_pages;
+
+    if n >= free_pages {
+        pr_err!("Page count exceed total number of free pages");
+        return Err(());
+    }
+
+    let start_pos = get_free_pages(&mm, count)?;
     let addr      = page_num_to_phys(start_pos);
 
     // Set page to zero.
@@ -229,25 +242,34 @@ pub fn alloc_pages(order: u32) -> Result<u32, ()> {
 /// Free given pages.
 ///
 /// # Parameters
-/// - `order` - given power of two (finding 2^order pages).
+/// - `count` - given number of pages to free.
 ///
 /// # Returns
 /// Ok  - in case of success.
 /// Err - otherwise.
-pub fn free_pages(addr: u32, order: u32) -> Result<(), ()> {
+pub fn free_pages(addr: u32, count: u32) -> Result<(), ()> {
     let mut mm = manager::MM.lock();
+    let n      = count as usize;
 
-    // Free 2^order pages.
-    let n = 1 << order;
+    // Handle incorrect number of pages.
+    if n >= mm.max_pages {
+        pr_err!("Page count exceed total number of pages");
+        return Err(());
+    }
+
+    if n >= mm.used_pages {
+        pr_err!("Page count exceed total number of used pages");
+        return Err(());
+    }
 
     // It is forbidden to free these pages, because they are
-    // containing GDT & multiboot info structure.
+    // contain GDT & multiboot info structure.
     let begin_pos = phys_to_page_num(addr);
     let end_pos   = phys_to_page_num(addr);
     let range     = begin_pos..end_pos;
 
     if range.contains(&0) || range.contains(&16) {
-        pr_err!("Error to free {} pages. Pages are in forbidden range {:#?}", n, range);
+        pr_err!("Page count is in forbidden range {:#?}", range);
         return Err(());
     }
 

@@ -31,7 +31,7 @@ pub fn freepg(unit: AllocUnit) -> Result<(), ()> {
     let mut args = SyscallArgs::default();
     args.arg1    = Syscall::FreePg as u32;
     args.arg2    = unit.addr;
-    args.arg3    = unit.order;
+    args.arg3    = unit.count;
 
     // Get syscall output.
     let output = syscall(&args);
