@@ -17,7 +17,7 @@
 //! Contains kernel terminal declaration.
 
 use crate::subsystem::graphics::{Rgb, Color, GraphicsSub, font};
-use core::ptr::write_bytes;
+use core::ptr;
 
 /// Default tabulation width.
 const TAB_WIDTH: u32 = 4;
@@ -45,21 +45,16 @@ impl Terminal {
     /// Scroll screen.
     fn scroll(&self) {
         let fb     = self.gfx.fb;
-        let size   = fb.height * fb.pitch;
+        let size   = (fb.height * fb.pitch) as usize;
         let buffer = fb.addr as *mut u32;
-        let mut pos: u32;
 
-        for i in 0..size {
-            pos = i + fb.width * font::CHAR_HEIGHT;
-            unsafe {
-                *buffer.offset(i as isize) = *buffer.offset(pos as isize);
-            }
-        }
-
-        pos = size - fb.width * font::CHAR_HEIGHT;
+        // Calculate the number of bytes to scroll.
+        let scroll_amount = (fb.width * font::CHAR_HEIGHT) as usize;
+        let new_size      = size - scroll_amount;
 
         unsafe {
-            write_bytes(buffer.offset(pos as isize), 0, (size - pos) as usize);
+            ptr::copy(buffer.wrapping_add(scroll_amount), buffer, new_size);
+            ptr::write_bytes(buffer.wrapping_add(new_size), 0, scroll_amount);
         }
     }
 
