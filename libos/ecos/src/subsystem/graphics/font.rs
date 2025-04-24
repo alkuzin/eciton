@@ -20,10 +20,10 @@
 pub const SIZE: usize = 4096;
 
 /// Font character height in pixels.
-pub const CHAR_HEIGHT: u32 = 16;
+pub const CHAR_HEIGHT: usize = 16;
 
 /// Font character width in pixels.
-pub const CHAR_WIDTH: u32 = 8;
+pub const CHAR_WIDTH: usize = 8;
 
 /// Kernel font in bytes representation.
 pub static FONT: &[u8;SIZE] = &[

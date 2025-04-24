@@ -107,6 +107,16 @@ impl Subsystem for GraphicsSub {
 }
 
 impl GraphicsSub {
+
+    /// Get framebuffer.
+    ///
+    /// # Returns
+    /// - Framebuffer as mutable raw pointer.
+    #[inline(always)]
+    fn get_buffer(&self) -> *mut u32 {
+        self.fb.addr as *mut u32
+    }
+
     /// Put pixel on the screen.
     ///
     /// # Parameters
@@ -117,12 +127,12 @@ impl GraphicsSub {
     /// # Safety
     /// TODO:
     #[inline]
-    pub unsafe  fn put_pixel(&self, x: u32, y: u32, color: Rgb) {
+    pub unsafe fn put_pixel(&self, x: u32, y: u32, color: Rgb) {
         // Pixel position in framebuffer.
         let pos = (y * self.fb.width + x) as usize;
 
         unsafe {
-            let buffer = self.fb.addr as *mut u32;
+            let buffer = self.get_buffer();
             ptr::write(buffer.wrapping_add(pos), color);
         }
     }
@@ -136,27 +146,27 @@ impl GraphicsSub {
     /// - `fg`    - given foreground color.
     /// - `bg`    - given background color.
     /// - `is_bg` - given param determine whether to display the `bg`.
-    pub fn draw_char(&self, c: char, x: u32, y: u32, fg: Rgb, bg: Rgb, is_bg: bool) {
+    pub fn draw_char(&self, c: char, x: usize, y: usize, fg: Rgb, bg: Rgb, is_bg: bool) {
         static MASK: [u8; 8] = [ 128, 64, 32, 16, 8, 4, 2, 1 ];
-        let font_ptr = font::FONT.as_ptr();
+        let font_ptr         = font::FONT.as_ptr();
+        let glyph: *const u8 = font_ptr.wrapping_add(
+            c as usize * font::CHAR_HEIGHT
+        );
 
-        let glyph: *const u8 = unsafe {
-            font_ptr.wrapping_add(c as usize * 16)
-        };
+        unsafe {
+            let buffer = self.get_buffer();
 
-        let mut pixel: u8;
+            for cy in 0..font::CHAR_HEIGHT {
+                // Read the entire row of pixels at once.
+                let pixel = *glyph.wrapping_add(cy);
 
-        for cy in 0..font::CHAR_HEIGHT {
-            for cx in 0..font::CHAR_WIDTH {
-                unsafe {
-                    pixel = *glyph.wrapping_add(cy as usize);
+                for cx in 0..font::CHAR_WIDTH {
+                    let color = if pixel & MASK[cx] != 0 { fg }
+                    else if is_bg { bg }
+                    else { continue };
 
-                    if pixel & MASK[cx as usize] != 0 {
-                        self.put_pixel(x + cx, y + cy, fg);
-                    }
-                    else if is_bg {
-                        self.put_pixel(x + cx, y + cy, bg);
-                    }
+                    let pos = (y + cy) * self.fb.width as usize + (x + cx);
+                    ptr::write(buffer.wrapping_add(pos), color);
                 }
             }
         }
@@ -170,7 +180,7 @@ impl GraphicsSub {
         let total_pixels = (self.fb.width * self.fb.height) as usize;
 
         unsafe {
-            let buffer = self.fb.addr as *mut u32;
+            let buffer = self.get_buffer();
             let mut i  = 0;
 
             // Filling 4 pixels at once.

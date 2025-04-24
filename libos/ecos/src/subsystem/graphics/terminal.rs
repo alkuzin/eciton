@@ -49,7 +49,7 @@ impl Terminal {
         let buffer = fb.addr as *mut u32;
 
         // Calculate the number of bytes to scroll.
-        let scroll_amount = (fb.width * font::CHAR_HEIGHT) as usize;
+        let scroll_amount = fb.width as usize * font::CHAR_HEIGHT;
         let new_size      = size - scroll_amount;
 
         unsafe {
@@ -101,8 +101,8 @@ impl Terminal {
                 for _ in 0..TAB_WIDTH {
                     self.gfx.draw_char(
                         c,
-                        self.x_pos as u32,
-                        self.y_pos as u32,
+                        self.x_pos as usize,
+                        self.y_pos as usize,
                         fg,
                         bg,
                         true
@@ -116,8 +116,8 @@ impl Terminal {
                 if c == ' ' || c.is_ascii_graphic() {
                     self.gfx.draw_char(
                         c,
-                        self.x_pos as u32,
-                        self.y_pos as u32,
+                        self.x_pos as usize,
+                        self.y_pos as usize,
                         fg,
                         bg,
                         true
