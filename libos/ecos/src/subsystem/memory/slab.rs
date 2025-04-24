@@ -17,6 +17,7 @@
 //! SLAB allocator slab declarations.
 
 use eciton_sdk::{bitops::bits_per_type, collections::Bitmap};
+use crate::subsystem::memory::Page;
 
 /// Constant representing used object in bitmap.
 const OBJECT_USED: bool = true;
@@ -144,5 +145,29 @@ impl Slab {
         self.inuse += 1;
 
         Ok(object)
+    }
+
+    /// Free single object.
+    ///
+    /// # Parameters
+    /// - `addr` - given object memory address.
+    ///
+    /// # Returns
+    /// - `Ok(flag)` - `flag` whether to free slab - in case of success.
+    /// - `Err(msg)` - error with message `msg` - otherwise.
+    pub fn free_object(&mut self, addr: u32) -> Result<bool, &'static str> {
+        let end_mem    = self.s_mem + Page::size() as u32;
+        let object_pos = end_mem - addr / self.objsize;
+
+        // Mark object as free.
+        self.bitmap.unset(object_pos as usize);
+        self.inuse -= 1;
+
+        // Check if slab empty after freeing of the object.
+        if self.inuse == 0 {
+            return Ok(true)
+        }
+
+        Ok(false)
     }
 }
