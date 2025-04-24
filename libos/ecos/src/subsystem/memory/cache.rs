@@ -20,6 +20,7 @@ use eciton_sdk::{
     math::{ceil, log2, roundup_pow_of_two},
     collections::StaticList
 };
+use crate::pr_debug;
 use super::{Page, Slab};
 
 /// Max limit of slabs per each cache.
@@ -151,5 +152,26 @@ impl Cache {
         let addr = slab.alloc_object()?;
 
         Ok(addr)
+    }
+
+    /// Free object from cache.
+    ///
+    /// # Parameters
+    /// - `addr` - given object memory address.
+    /// - `pos`  - given slab position in array of slabs.
+    ///
+    /// # Returns
+    /// - `Ok(flag)` - `flag` whether to free slab - in case of success.
+    /// - `Err(msg)` - error with message `msg` - otherwise.
+    pub fn free(&mut self, addr: u32, pos: usize) -> Result<bool, &'static str> {
+        let slab = self.get_slab(pos);
+        let flag = slab.free_object(addr)?;
+
+        // self.indexes.remove(pos);
+        pr_debug!("{:?}", self.indexes);
+
+        // TODO: pop freed slab from indexes list.
+        // TODO: add inline(always) where needed.
+        Ok(flag)
     }
 }
