@@ -125,7 +125,7 @@ impl GraphicsSub {
     /// - `color` - given RGB color of pixel.
     ///
     /// # Safety
-    /// TODO:
+    /// - This method is unsafe because of its lack of bounds check.
     #[inline]
     pub unsafe fn put_pixel(&self, x: u32, y: u32, color: Rgb) {
         // Pixel position in framebuffer.

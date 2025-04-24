@@ -87,7 +87,7 @@ impl Terminal {
     pub fn putc(&mut self, c: char, fg: Rgb, bg: Rgb) {
         if self.x_pos >= self.width {
             self.x_pos = 0;
-            self.y_pos = font::CHAR_HEIGHT as i32;
+            self.y_pos += font::CHAR_HEIGHT as i32;
         }
 
         match c {
