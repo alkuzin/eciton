@@ -31,11 +31,10 @@ use eciton_sdk::{
 };
 use crate::{
     subsystem::{Subsystem, SubsystemResult},
-    api::exo::{allocpg},
+    api::exo::{allocpg, freepg, AllocUnit},
     pr_debug
 };
 use core::slice;
-use crate::api::exo::{freepg, AllocUnit};
 
 /// Constant representing used slab in bitmap.
 const SLAB_USED: bool = true;
@@ -267,5 +266,47 @@ impl<'a> SlabAllocator<'a> {
 
         let addr = cache.alloc()?;
         Ok(addr)
+    }
+
+    /// Free single object.
+    ///
+    /// # Parameters
+    /// - `addr` - given object memory address.
+    /// - `idx`  - given cache index.
+    ///
+    /// # Returns
+    /// - `Ok`       - in case of success.
+    /// - `Err(msg)` - error message otherwise.
+    pub fn free_object(&mut self, addr: u32, idx: usize) -> Result<(), &'static str> {
+        if let None = self.slabs {
+            return Err("Error to free object. Slabs array is none.");
+        }
+
+        // Check that address is within memory allocated for slabs.
+        let alloc_unit  = self.all_slabs_alloc_unit.as_ref().unwrap();
+        let size        = alloc_unit.count * Page::size() as u32;
+        let lower_range = alloc_unit.addr;
+        let upper_range = lower_range + size;
+        let range       = lower_range..upper_range;
+
+        if !range.contains(&addr) {
+            return Err("Error to free object. Incorrect memory address.")
+        }
+
+        let cache = &mut self.caches[idx];
+
+        if cache.is_empty() {
+           return Err("Error to free object. Cache is empty.")
+        }
+
+        let pos  = (addr - lower_range) as usize / Page::size();
+        let flag = cache.free(addr, pos)?;
+
+        // Free slab if needed.
+        if flag {
+            self.bitmap.unset(pos);
+        }
+
+        Ok(())
     }
 }
