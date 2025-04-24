@@ -17,6 +17,7 @@
 //! Graphics module. Contains declarations for RGB colors and
 //! other graphics related functions.
 
+use core::ptr;
 pub use eciton_sdk::vbe::Framebuffer;
 use super::{Subsystem, SubsystemResult};
 use crate::{api::exo, printk};
@@ -112,13 +113,17 @@ impl GraphicsSub {
     /// - `x`     - given x-coordinate of pixel.
     /// - `y`     - given y-coordinate of pixel.
     /// - `color` - given RGB color of pixel.
+    ///
+    /// # Safety
+    /// TODO:
     #[inline]
-    pub fn put_pixel(&self, x: u32, y: u32, color: Rgb) {
-        if x < self.fb.width && y < self.fb.height {
-            unsafe {
-                let buffer = self.fb.addr as *mut u32;
-                *buffer.offset((y * self.fb.width + x) as isize) = color;
-            }
+    pub unsafe  fn put_pixel(&self, x: u32, y: u32, color: Rgb) {
+        // Pixel position in framebuffer.
+        let pos = (y * self.fb.width + x) as usize;
+
+        unsafe {
+            let buffer = self.fb.addr as *mut u32;
+            ptr::write(buffer.wrapping_add(pos), color);
         }
     }
 
@@ -133,20 +138,25 @@ impl GraphicsSub {
     /// - `is_bg` - given param determine whether to display the `bg`.
     pub fn draw_char(&self, c: char, x: u32, y: u32, fg: Rgb, bg: Rgb, is_bg: bool) {
         static MASK: [u8; 8] = [ 128, 64, 32, 16, 8, 4, 2, 1 ];
-        let font_ptr         = font::FONT.as_ptr();
-        let glyph: *const u8 = unsafe { font_ptr.add(c as usize * 16) };
+        let font_ptr = font::FONT.as_ptr();
+
+        let glyph: *const u8 = unsafe {
+            font_ptr.wrapping_add(c as usize * 16)
+        };
 
         let mut pixel: u8;
 
         for cy in 0..font::CHAR_HEIGHT {
             for cx in 0..font::CHAR_WIDTH {
-                pixel = unsafe { *glyph.add(cy as usize) };
+                unsafe {
+                    pixel = *glyph.wrapping_add(cy as usize);
 
-                if pixel & MASK[cx as usize] != 0 {
-                    self.put_pixel(x + cx, y + cy, fg);
-                }
-                else if is_bg {
-                    self.put_pixel(x + cx, y + cy, bg);
+                    if pixel & MASK[cx as usize] != 0 {
+                        self.put_pixel(x + cx, y + cy, fg);
+                    }
+                    else if is_bg {
+                        self.put_pixel(x + cx, y + cy, bg);
+                    }
                 }
             }
         }
@@ -157,9 +167,24 @@ impl GraphicsSub {
     /// # Parameters
     /// - `color` - given color to fill with.
     pub fn fill_screen(&self, color: Rgb) {
-        for y in 0..self.fb.height {
-            for x in 0..self.fb.width {
-                self.put_pixel(x, y, color);
+        let total_pixels = (self.fb.width * self.fb.height) as usize;
+
+        unsafe {
+            let buffer = self.fb.addr as *mut u32;
+            let mut i  = 0;
+
+            // Filling 4 pixels at once.
+            while i <= total_pixels - 4 {
+                ptr::write(buffer.wrapping_add(i), color);
+                ptr::write(buffer.wrapping_add(i + 1), color);
+                ptr::write(buffer.wrapping_add(i + 2), color);
+                ptr::write(buffer.wrapping_add(i + 3), color);
+                i += 4;
+            }
+
+            // Color any remaining pixels.
+            for j in i..total_pixels {
+                ptr::write(buffer.wrapping_add(j), color);
             }
         }
     }
