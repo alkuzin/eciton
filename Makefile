@@ -40,6 +40,9 @@ ASM_SRC  = $(ASM_PATH)/boot \
 ASM_SRCS = $(addsuffix .asm, $(ASM_SRC))
 ASM_OBJS = $(addsuffix .o,   $(ASM_SRC))
 
+compile_tests:
+	cargo build --manifest-path $(KERNEL_PATH)/Cargo.toml --features exotest
+
 $(KERNEL_STATIC_LIB):
 	cargo build --manifest-path $(KERNEL_PATH)/Cargo.toml
 
@@ -49,7 +52,9 @@ $(ASM_PATH)/%.o: $(ASM_PATH)/%.asm
 	$(ASM) $(ASM_FLAGS) -c $< -o $@
 
 $(NAME): $(OBJS) $(KERNEL_STATIC_LIB)
-	cargo build --manifest-path $(KERNEL_PATH)/Cargo.toml
+	$(LINKER) $(LINKER_FLAGS) -o $(KERNEL_ELF) -T $(TARGETS_PATH)/linker.ld $(OBJS)
+
+build_tests: $(OBJS) compile_tests
 	$(LINKER) $(LINKER_FLAGS) -o $(KERNEL_ELF) -T $(TARGETS_PATH)/linker.ld $(OBJS)
 
 $(ISO_PATH):
@@ -70,14 +75,19 @@ fclean: clean
 
 re: fclean all
 
-build-iso: all
+build-iso:
 	cp $(GRUB_CONFIG_PATH)/grub.cfg $(ISO_PATH)/boot/grub/grub.cfg
 	grub-mkrescue -o $(ISO_NAME) $(ISO_PATH)
 
 init:
 	qemu-system-i386 -m 256 -cdrom $(ISO_NAME) -serial stdio
 
-run: build-iso init
+compile_default:
+	cargo build --manifest-path $(KERNEL_PATH)/Cargo.toml
+
+run: compile_default all build-iso init
+
+test: compile_tests all build-iso init
 
 check-clippy:
 	cargo clippy --manifest-path $(KERNEL_PATH)/Cargo.toml -- -D warnings -W clippy::all

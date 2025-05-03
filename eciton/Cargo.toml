@@ -42,4 +42,7 @@ eciton_sdk = { path = "../eciton_sdk"}
 # Default libOS.
 ecos        = { path = "../libos/ecos"}
 lazy_static = { version = "1.5.0", features = ["spin_no_std"]}
-spin        = "0.9.8"
+spin        = "0.10.0"
+
+[features]
+exotest = []
