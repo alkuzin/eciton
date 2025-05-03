@@ -23,11 +23,13 @@
 
 pub mod collections;
 pub mod context;
+pub mod exotest;
 pub mod bitops;
 pub mod arch;
 pub mod math;
 pub mod vbe;
 
+// TODO: move to types module:
 /// Trait for memory units conversion.
 pub trait MemoryUnit {
     /// Convert type representing bytes to KB.
