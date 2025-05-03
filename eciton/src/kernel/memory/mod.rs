@@ -293,12 +293,60 @@ use crate::tests::*;
 exotest! {
     exotest_test_cases! {
         test_successful_page_allocation, {
-            let result = alloc_pages(1);
+            let count  = 1;
+            let result = alloc_pages(count);
+
             assert!(result.is_ok());
+
+            let addr = result.unwrap();
+            let _    = free_pages(addr, count);
         },
+
         test_zero_page_allocation, {
-            let result = alloc_pages(0);
+            let count  = 0;
+            let result = alloc_pages(count);
+
             assert!(result.is_err());
+        },
+
+        test_super_large_allocation, {
+            let count  = 65536;
+            let result = alloc_pages(count);
+
+            assert!(result.is_err());
+        },
+
+        test_successful_large_page_allocation, {
+            let count  = 2048;
+            let result = alloc_pages(count);
+
+            assert!(result.is_ok());
+
+            let addr = result.unwrap();
+            let _    = free_pages(addr, count);
+        },
+
+        test_multiple_page_allocations, {
+            // Allocate first sequence of pages.
+            let count1  = 1;
+            let result1 = alloc_pages(count1);
+
+            assert!(result1.is_ok());
+
+            // Allocate second sequence of pages.
+            let count2  = 2;
+            let result2 = alloc_pages(count2);
+
+            assert!(result2.is_ok());
+
+            // Check that these pages addresses are close to each other.
+            let addr1 = result1.unwrap();
+            let addr2 = result2.unwrap();
+
+            assert_eq!(addr2 - addr1, PAGE_SIZE as u32);
+
+            let _ = free_pages(addr1, count1);
+            let _ = free_pages(addr2, count2);
         }
     }
 }

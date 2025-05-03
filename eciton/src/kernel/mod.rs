@@ -26,13 +26,11 @@ mod memory;
 mod debug;
 mod arch;
 
-use crate::{
-    kernel::{
-        arch::i686::{gdt, idt}, drivers::uart::Uart, multiboot::MultibootInfo
-    },
-    ecos, pr_ok
-};
+use crate::{kernel::{
+    arch::i686::{gdt, idt}, drivers::uart::Uart, multiboot::MultibootInfo
+}, ecos, pr_ok};
 use eciton_sdk::context::Context;
+use tests::*;
 
 /// Initialize kernel.
 ///
@@ -54,6 +52,10 @@ pub fn init(_boot_info: &MultibootInfo) {
 
     syscall::init();
     pr_ok!("Initialized System call handler.");
+
+    exotest_custom_run! {
+        memory::run_tests();
+    }
 
     pr_ok!("Running default libOS.");
     ecos::libos_main(Context::default());
