@@ -213,6 +213,11 @@ pub fn alloc_pages(count: u32) -> Result<u32, ()> {
         return Err(());
     }
 
+    if n == 0 {
+        pr_err!("Cannot allocate 0 pages");
+        return Err(());
+    }
+
     // Handle not enough of free blocks.
     let free_pages = mm.max_pages - mm.used_pages;
 
@@ -281,4 +286,19 @@ pub fn free_pages(addr: u32, count: u32) -> Result<(), ()> {
 
     pr_debug!("Freed {} pages at address <{:#010X}>", n, addr);
     Ok(())
+}
+
+use crate::tests::*;
+
+exotest! {
+    exotest_test_cases! {
+        test_successful_page_allocation, {
+            let result = alloc_pages(1);
+            assert!(result.is_ok());
+        },
+        test_zero_page_allocation, {
+            let result = alloc_pages(0);
+            assert!(result.is_err());
+        }
+    }
 }
