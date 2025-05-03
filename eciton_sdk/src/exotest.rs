@@ -116,7 +116,7 @@ macro_rules! exotest_test_cases {
         )*
 
         // Create entry point for running tests.
-        fn run_tests() {
+        pub fn run_tests() {
             // Create the test suite.
             let test_suite = TestSuite {
                 output_result: test_passed,
@@ -127,6 +127,8 @@ macro_rules! exotest_test_cases {
                     },)*
                 ],
             };
+
+            test_running_global(module_path!());
 
             // Run the test suite.
             test_suite.run();
@@ -140,6 +142,8 @@ macro_rules! exotest_test_cases {
 /// - This macro should be called `once` during exokernel or libOS initialization.
 ///
 /// # Parameters
+/// - `running_global_body` - given function contents for log before all tests
+/// are running.
 /// - `running_body` - given function contents for log when a test is running.
 /// - `passed_body`  - given function contents for log when a test has passed.
 /// - `failed_body`  - given panic handler contents when a test has failed.
@@ -150,13 +154,19 @@ macro_rules! exotest_test_cases {
 ///     exotest_register_handlers!(
 ///         |name: &str| { ... },
 ///         |name: &str| { ... },
+///         |name: &str| { ... },
 ///         |info: &PanicInfo| -> ! { ... }
 ///     );
 /// }
 /// ```
 #[macro_export]
 macro_rules! exotest_register_handlers {
-    ($running_body:expr, $passed_body:expr, $failed_body:expr) => {
+    ($running_global_body:expr, $running_body:expr, $passed_body:expr, $failed_body:expr) => {
+        // Function to log before all tests are running.
+        pub fn test_running_global(name: &str) {
+            ($running_global_body)(name);
+        }
+
         // Function to log when a test is running.
         pub fn test_running(name: &str) {
             ($running_body)(name);

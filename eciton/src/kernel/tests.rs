@@ -27,6 +27,11 @@ exotest! {
     use crate::printk;
 
     exotest_register_handlers!(
+        // Function to log before all tests are running.
+        |name: &str| {
+            printk!("[TEST ] Running tests for module: <{}>", name);
+        },
+
         // Function to log when a test is running.
         |name: &str| {
             printk!("[TEST ] Running test <{}>", name);
