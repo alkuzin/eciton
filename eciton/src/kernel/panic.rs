@@ -15,38 +15,41 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 //! Kernel panic function.
+use crate::kernel::tests::exotest_ignore;
 
-use crate::{kernel::debug, pr_panic};
-use core::panic::PanicInfo;
+exotest_ignore! {
+    use crate::{kernel::debug, pr_panic};
+    use core::panic::PanicInfo;
 
-/// Custom kernel panic handler.
-///
-/// # Parameters
-/// - `info` - given panic information struct.
-#[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
-    let message  = info.message().as_str().unwrap_or("Unknown panic");
-    let location = info.location().unwrap();
+    /// Custom kernel panic handler.
+    ///
+    /// # Parameters
+    /// - `info` - given panic information struct.
+    #[panic_handler]
+    fn panic(info: &PanicInfo) -> ! {
+        let message  = info.message().as_str().unwrap_or("Unknown panic");
+        let location = info.location().unwrap();
 
-    pr_panic!("File: '{}'", location.file());
-    pr_panic!("On line: {} at column: {}",
-        location.line(),
-        location.column(),
-    );
+        pr_panic!("File: '{}'", location.file());
+        pr_panic!("On line: {} at column: {}",
+            location.line(),
+            location.column(),
+        );
 
-    // The "EXCEPTION" message is used to signal panic! to not
-    // print panic messages at all, because this macro can't
-    // print formatted panic message in case of exceptions.
-    // For displaying detailed panic messages in case of exception,
-    // panic! is used along with printk! macro.
-    if !message.starts_with("EXCEPTION") {
-        pr_panic!("Message: {}", message);
+        // The "EXCEPTION" message is used to signal panic! to not
+        // print panic messages at all, because this macro can't
+        // print formatted panic message in case of exceptions.
+        // For displaying detailed panic messages in case of exception,
+        // panic! is used along with printk! macro.
+        if !message.starts_with("EXCEPTION") {
+            pr_panic!("Message: {}", message);
+        }
+
+        pr_panic!("---");
+        debug::dump_registers();
+        pr_panic!("---");
+
+        // Halt kernel.
+        loop {}
     }
-
-    pr_panic!("---");
-    debug::dump_registers();
-    pr_panic!("---");
-
-    // Halt kernel.
-    loop {}
 }
