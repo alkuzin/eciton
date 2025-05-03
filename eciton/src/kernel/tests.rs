@@ -19,7 +19,7 @@
 #[allow(unused_imports)]
 pub use eciton_sdk::{
     exotest_register_handlers, exotest_test_cases, exotest_ignore,
-    exotest_run, exotest, exotest::{Test, TestSuite},
+    exotest_run, exotest_custom_run, exotest, exotest::{Test, TestSuite},
 };
 
 exotest! {

@@ -52,6 +52,34 @@ macro_rules! exotest_run {
     };
 }
 
+/// Macro for custom test runner implementation.
+///
+/// # Parameters
+/// - `block` - given custom test runner contents.
+///
+/// # Usage
+/// ```
+///  exotest_custom_run! {
+///     // Run tests for other modules.
+///     module1::run_tests();
+///     module2::run_tests();
+///
+///     print_some_debug_info(...);
+///
+///     // Run tests for current module.
+///     run_tests();
+///  }
+/// ```
+#[macro_export]
+macro_rules! exotest_custom_run {
+    ($($block:tt)*) => {
+        #[cfg(feature = "exotest")]
+        {
+            $($block)*
+        }
+    };
+}
+
 /// Macro for compiling its items only during testing.
 ///
 /// # Parameters
