@@ -26,3 +26,18 @@ pub fn null(regs: &mut IntRegisterState) {
     // Put success return value into eax register.
     regs.eax = SyscallResult::Success as u32;
 }
+
+use crate::tests::*;
+
+exotest! {
+    exotest_test_cases! {
+        test_null_syscall, {
+            let mut regs = IntRegisterState::default();
+            null(&mut regs);
+
+            // Check return value.
+            let ret = regs.eax;
+            assert_eq!(ret, SyscallResult::Success as u32);
+        }
+    }
+}

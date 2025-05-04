@@ -42,3 +42,50 @@ pub fn allocpg(regs: &mut IntRegisterState) {
         }
     }
 }
+
+use crate::tests::*;
+
+exotest! {
+    use crate::kernel::memory::free_pages;
+
+    exotest_test_cases! {
+        test_allocpg_syscall_successful, {
+            let mut regs = IntRegisterState::default();
+            let count = 6;
+            regs.ebx  = count;
+            allocpg(&mut regs);
+
+            // Check return value.
+            let ret = regs.eax;
+            assert_eq!(ret, SyscallResult::Success as u32);
+
+            // Check memory address.
+            let addr = regs.ebx;
+            assert_ne!(addr, 0);
+
+            let _ = free_pages(addr, count);
+        },
+
+        test_allocpg_syscall_allocate_zero_pages, {
+            let mut regs = IntRegisterState::default();
+            let count = 0;
+            regs.ebx  = count;
+            allocpg(&mut regs);
+
+            // Check return value.
+            let ret = regs.eax;
+            assert_eq!(ret, SyscallResult::Error as u32);
+        },
+
+        test_allocpg_syscall_allocate_too_many_pages, {
+            let mut regs = IntRegisterState::default();
+            let count = 1337;
+            regs.ebx  = count;
+            allocpg(&mut regs);
+
+            // Check return value.
+            let ret = regs.eax;
+            assert_eq!(ret, SyscallResult::Error as u32);
+        }
+    }
+}

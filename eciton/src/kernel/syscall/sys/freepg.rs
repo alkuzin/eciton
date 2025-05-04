@@ -33,7 +33,6 @@ pub fn freepg(regs: &mut IntRegisterState) {
         return;
     }
 
-    // TODO: check range of order.
     match free_pages(addr, count) {
         Ok(_)  => {
             // Put return value into eax register.
@@ -43,6 +42,69 @@ pub fn freepg(regs: &mut IntRegisterState) {
             pr_err!("Error to free {count} pages at address <{addr}>");
             // Error return value -1.
             regs.eax = SyscallResult::Error as u32;
+        }
+    }
+}
+
+use crate::tests::*;
+
+exotest! {
+    use crate::kernel::memory::{alloc_pages, PAGE_LIMIT};
+
+    exotest_test_cases! {
+        test_freepg_syscall_successful, {
+            let count = 6;
+            let addr  = alloc_pages(count).unwrap();
+
+            let mut regs = IntRegisterState::default();
+            regs.ebx     = addr;
+            regs.ecx     = count;
+            freepg(&mut regs);
+
+            // Check return value.
+            let ret = regs.eax;
+            assert_eq!(ret, SyscallResult::Success as u32);
+
+            let _ = free_pages(addr, count);
+        },
+
+        test_freepg_syscall_free_zero_pages, {
+            let count = 0;
+
+            let mut regs = IntRegisterState::default();
+            regs.ebx     = 0;
+            regs.ecx     = count;
+            freepg(&mut regs);
+
+            // Check return value.
+            let ret = regs.eax;
+            assert_eq!(ret, SyscallResult::Error as u32);
+        },
+
+        test_freepg_syscall_free_incorrect_address, {
+            let count = 6;
+
+            let mut regs = IntRegisterState::default();
+            regs.ebx     = 0;
+            regs.ecx     = count;
+            freepg(&mut regs);
+
+            // Check return value.
+            let ret = regs.eax;
+            assert_eq!(ret, SyscallResult::Error as u32);
+        },
+
+        test_freepg_syscall_free_too_many_pages, {
+            let count = PAGE_LIMIT as u32;
+
+            let mut regs = IntRegisterState::default();
+            regs.ebx     = 0;
+            regs.ecx     = count;
+            freepg(&mut regs);
+
+            // Check return value.
+            let ret = regs.eax;
+            assert_eq!(ret, SyscallResult::Error as u32);
         }
     }
 }
