@@ -25,6 +25,15 @@ use core::{ffi::c_void, ptr};
 use manager::MemoryManager;
 use layout::*;
 
+/// Constant representing free object in bitmap.
+const PAGE_FREE: bool = false;
+
+/// Constant representing used object in bitmap.
+const PAGE_USED: bool = true;
+
+/// Max number of pages to allocate/free at once.
+pub const PAGE_LIMIT: usize = 128;
+
 /// Initialize physical memory manager.
 pub fn init() {
     let boot_info = BOOT_INFO.lock();
@@ -97,12 +106,6 @@ fn print_memory_info(mm: &MemoryManager, bm_addr: *const u32, bm_size: usize) {
     pr_debug!("Set bitmap size: {} bytes.", bm_size);
 }
 
-/// Constant representing free object in bitmap.
-const PAGE_FREE: bool = false;
-
-/// Constant representing used object in bitmap.
-const PAGE_USED: bool = true;
-
 /// Get free pages.
 ///
 /// # Parameters
@@ -162,12 +165,6 @@ fn get_free_pages(mm: &MemoryManager, count: u32) -> Result<usize, ()> {
     Err(())
 }
 
-/// Max number of pages to allocate/free at once.
-pub const PAGE_LIMIT: usize = 128;
-
-// TODO: replace pr_err with Err(msg) or custom enum.
-// TODO: move other debug info to syscall handler.
-
 /// Allocate free zeroed pages.
 ///
 /// # Parameters
@@ -180,29 +177,10 @@ pub fn alloc_pages(count: u32) -> Result<u32, ()> {
     let mut mm = manager::MM.lock();
     let n      = count as usize;
 
-    // Handle incorrect number of pages.
-    if n >= mm.max_pages {
-        pr_err!("Page count exceed total number of pages");
-        return Err(());
-    }
-
-    // Handle allocating 0 pages.
-    if n == 0 {
-        pr_err!("Cannot allocate 0 pages");
-        return Err(());
-    }
-
-    // Handle allocating more pages that allowed per once.
-    if n >= PAGE_LIMIT {
-        pr_err!("Allocation count cannot exceed page limit");
-        return Err(());
-    }
-
-    // Handle allocating more pages than available.
     let free_pages = mm.max_pages - mm.used_pages;
 
-    if n >= free_pages {
-        pr_err!("Page count exceed total number of free pages");
+    // Handle incorrect number of pages.
+    if n >= mm.max_pages || n == 0 || n >= PAGE_LIMIT || n >= free_pages {
         return Err(());
     }
 
@@ -216,9 +194,8 @@ pub fn alloc_pages(count: u32) -> Result<u32, ()> {
 
     // Set n pages as used.
     for i in 0..n {
-        mm.bitmap.set(start_pos + i);
+        mm.reserve_page(start_pos + i)
     }
-    mm.used_pages += n;
 
     pr_debug!("Allocated {} pages at address <{:#010X}>", n, addr);
     Ok(addr)
@@ -236,27 +213,9 @@ pub fn free_pages(addr: u32, count: u32) -> Result<(), ()> {
     let mut mm = manager::MM.lock();
     let n      = count as usize;
 
-    // Handle freeing 0 pages.
-    if n == 0 {
-        pr_err!("Cannot free 0 pages");
-        return Err(());
-    }
-
-    // Handle freeing more pages that allowed pre once.
-    if n >= PAGE_LIMIT {
-        pr_err!("Freeing count cannot exceed page limit");
-        return Err(());
-    }
-
     // Handle incorrect number of pages.
-    if n >= mm.max_pages {
-        pr_err!("Page count exceed total number of pages");
-        return Err(());
-    }
-
-    // Handle freeing more pages that used.
-    if n >= mm.used_pages {
-        pr_err!("Page count exceed total number of used pages");
+    if n == 0 || n >= PAGE_LIMIT || n >= mm.max_pages || n >= mm.used_pages {
+        pr_err!("Cannot free 0 pages");
         return Err(());
     }
 
