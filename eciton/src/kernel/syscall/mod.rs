@@ -62,3 +62,20 @@ fn syscall_handler(regs: &mut IntRegisterState) {
 pub fn init() {
     irq::request(SYSCALL_NUM, syscall_handler);
 }
+
+use crate::tests::*;
+
+exotest! {
+    use crate::kernel::syscall::sys::SyscallResult;
+
+    exotest_test_cases! {
+        test_null_syscall, {
+            let mut regs = IntRegisterState::default();
+            sys::null(&mut regs);
+
+            // Check return value.
+            let ret = regs.eax;
+            assert_eq!(ret, SyscallResult::Success as u32);
+        }
+    }
+}
