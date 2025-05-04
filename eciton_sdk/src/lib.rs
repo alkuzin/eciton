@@ -27,6 +27,7 @@ pub mod exotest;
 pub mod bitops;
 pub mod arch;
 pub mod math;
+pub mod page;
 pub mod vbe;
 
 // TODO: move to types module:

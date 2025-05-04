@@ -19,44 +19,11 @@
 mod manager;
 mod layout;
 
-use eciton_sdk::{collections::Bitmap, bitops::bits_to_bytes};
+use eciton_sdk::{collections::Bitmap, bitops::bits_to_bytes, page::Page};
 use crate::{pr_debug, pr_err, BOOT_INFO};
 use core::{ffi::c_void, ptr};
 use manager::MemoryManager;
 use layout::*;
-
-// TODO: move Page struct to EcitonSDK
-// TODO: replace with Page struct
-
-/// Page size in bytes.
-pub const PAGE_SIZE: usize = 4096;
-
-/// Page bit shift.
-pub const PAGE_SHIFT: u8 = 0xC;
-
-/// Convert physical address to page frame number.
-///
-/// # Parameters
-/// - `addr` - given page physical address.
-///
-/// # Returns
-/// Page frame number.
-#[inline(always)]
-fn phys_to_page_num(addr: u32) -> usize {
-    addr as usize >> PAGE_SHIFT
-}
-
-/// Convert page frame number to physical address.
-///
-/// # Parameters
-/// - `addr` - given page frame number.
-///
-/// # Returns
-/// Page frame physical address.
-#[inline(always)]
-fn page_num_to_phys(pfn: usize) -> u32 {
-    (pfn << PAGE_SHIFT) as u32
-}
 
 /// Initialize physical memory manager.
 pub fn init() {
@@ -89,7 +56,7 @@ pub fn init() {
     mm.free_available_memory(&boot_info);
 
     // Mark kernel memory as used.
-    mm.mark_as_used(kernel_begin_paddr(), kernel_size as usize + PAGE_SIZE);
+    mm.mark_as_used(kernel_begin_paddr(), kernel_size as usize + Page::size());
 
     // Mark memory between kernel end & bitmap as used.
     mm.mark_as_used(bitmap_addr.wrapping_sub(STACK_SIZE) as u32, STACK_SIZE);
@@ -240,11 +207,11 @@ pub fn alloc_pages(count: u32) -> Result<u32, ()> {
     }
 
     let start_pos = get_free_pages(&mm, count)?;
-    let addr      = page_num_to_phys(start_pos);
+    let addr      = Page::addr_from(start_pos);
 
     // Set page to zero.
     unsafe {
-        ptr::write_bytes(addr as *mut c_void, 0, n << PAGE_SHIFT);
+        ptr::write_bytes(addr as *mut c_void, 0, n << Page::shift());
     }
 
     // Set n pages as used.
@@ -295,8 +262,8 @@ pub fn free_pages(addr: u32, count: u32) -> Result<(), ()> {
 
     // It is forbidden to free these pages, because they are
     // contain GDT & multiboot info structure.
-    let begin_pos = phys_to_page_num(addr);
-    let end_pos   = phys_to_page_num(addr);
+    let begin_pos = Page::page_num_from(addr);
+    let end_pos   = Page::page_num_from(addr + (count << Page::shift()));
     let range     = begin_pos..end_pos;
 
     if range.contains(&0) || range.contains(&16) {
@@ -377,7 +344,7 @@ exotest! {
             let addr1 = result1.unwrap();
             let addr2 = result2.unwrap();
 
-            assert_eq!(addr2 - addr1, PAGE_SIZE as u32);
+            assert_eq!(addr2 - addr1, Page::size() as u32);
 
             let _ = free_pages(addr1, count1);
             let _ = free_pages(addr2, count2);

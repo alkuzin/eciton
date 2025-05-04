@@ -18,16 +18,15 @@
 
 pub mod cache;
 pub mod slab;
-pub mod page;
 
 pub use cache::*;
-pub use page::*;
 pub use slab::*;
 use eciton_sdk::{
     math::roundup_pow_of_two,
     bitops::bits_per_type,
     collections::Bitmap,
-    MemoryUnit
+    MemoryUnit,
+    page::Page,
 };
 use crate::{
     subsystem::{Subsystem, SubsystemResult},

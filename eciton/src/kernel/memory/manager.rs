@@ -24,8 +24,7 @@ use crate::{
     }, pr_debug
 };
 
-use super::{phys_to_page_num, PAGE_SHIFT};
-use eciton_sdk::collections::Bitmap;
+use eciton_sdk::{collections::Bitmap, page::Page};
 use lazy_static::lazy_static;
 use spin::Mutex;
 
@@ -42,7 +41,6 @@ pub struct MemoryManager {
     pub used_pages: usize,
     /// Physical memory map.
     pub bitmap: Bitmap<u32, 0>,
-    // TODO: add free_pages: usize,
 }
 
 impl MemoryManager {
@@ -72,7 +70,7 @@ impl MemoryManager {
             pr_debug!("[mem {:#010X}-{:#010X}] {:?}.", begin, end, mem_type);
         }
 
-        self.max_pages = self.mem_total >> PAGE_SHIFT;
+        self.max_pages = self.mem_total >> Page::shift();
     }
 
     /// Mark memory region as free.
@@ -81,8 +79,8 @@ impl MemoryManager {
     /// - `addr` - given base address of the region.
     /// - `size` - given size of the region in bytes.
     pub fn mark_as_free(&mut self, addr: u32, size: usize) {
-        let mut pos = phys_to_page_num(addr);
-        let mut n   = size >> PAGE_SHIFT;
+        let mut pos = Page::page_num_from(addr);
+        let mut n   = size >> Page::shift();
 
         while n > 0 {
             self.bitmap.unset(pos);
@@ -98,8 +96,8 @@ impl MemoryManager {
     /// - `addr` - given base address of the region.
     /// - `size` - given size of the region in bytes.
     pub fn mark_as_used(&mut self, addr: u32, size: usize) {
-        let mut pos = phys_to_page_num(addr);
-        let mut n   = size >> PAGE_SHIFT;
+        let mut pos = Page::page_num_from(addr);
+        let mut n   = size >> Page::shift();
 
         while n > 0 {
             self.bitmap.set(pos);
@@ -143,5 +141,7 @@ unsafe impl Sync for MemoryManager {}
 unsafe impl Send for MemoryManager {}
 
 lazy_static! {
-    pub static ref MM: Mutex<MemoryManager> = Mutex::new(MemoryManager::default());
+    pub static ref MM: Mutex<MemoryManager> = Mutex::new(
+        MemoryManager::default()
+    );
 }
