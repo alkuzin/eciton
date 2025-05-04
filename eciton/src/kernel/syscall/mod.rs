@@ -67,6 +67,7 @@ use crate::tests::*;
 
 exotest! {
     use crate::kernel::syscall::sys::SyscallResult;
+    use eciton_sdk::vbe::Framebuffer;
 
     exotest_test_cases! {
         test_null_syscall, {
@@ -76,6 +77,41 @@ exotest! {
             // Check return value.
             let ret = regs.eax;
             assert_eq!(ret, SyscallResult::Success as u32);
+        },
+
+        test_getfb_syscall_successfull, {
+            let mut regs = IntRegisterState::default();
+            let fb       = Framebuffer::default();
+
+            regs.ebx = (&fb as *const _) as u32;
+            sys::getfb(&mut regs);
+
+            let fb_ptr = regs.ebx as *const Framebuffer;
+            let fb     = unsafe { &*fb_ptr };
+
+            // Check that framebuffer info is correct.
+            let boot_info = crate::BOOT_INFO.lock();
+
+            assert_eq!(fb.addr,   boot_info.framebuffer_addr);
+            assert_eq!(fb.pitch,  boot_info.framebuffer_pitch);
+            assert_eq!(fb.width,  boot_info.framebuffer_width);
+            assert_eq!(fb.height, boot_info.framebuffer_height);
+            assert_eq!(fb.bpp,    boot_info.framebuffer_bpp);
+
+            // Check return value.
+            let ret = regs.eax;
+            assert_eq!(ret, SyscallResult::Success as u32);
+        },
+
+        test_getfb_syscall_incorrect, {
+            let mut regs = IntRegisterState::default();
+            regs.ebx = 0;
+            sys::getfb(&mut regs);
+
+            // Check return value.
+            let ret = regs.eax;
+            assert_eq!(ret, SyscallResult::Error as u32);
         }
+
     }
 }
