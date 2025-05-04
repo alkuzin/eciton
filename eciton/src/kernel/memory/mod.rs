@@ -196,7 +196,7 @@ fn get_free_pages(mm: &MemoryManager, count: u32) -> Result<usize, ()> {
 }
 
 /// Max number of pages to allocate/free at once.
-const PAGE_LIMIT: usize = 128;
+pub const PAGE_LIMIT: usize = 128;
 
 // TODO: replace pr_err with Err(msg) or custom enum.
 // TODO: move other debug info to syscall handler.

@@ -16,8 +16,8 @@
 
 //! Alloc memory pages syscall implementation.
 
-use crate::{kernel::memory::alloc_pages, pr_err};
 use super::{IntRegisterState, SyscallResult};
+use crate::kernel::memory::alloc_pages;
 
 /// Allocate memory pages.
 ///
@@ -25,22 +25,20 @@ use super::{IntRegisterState, SyscallResult};
 /// - `regs` - given pointer to interrupt register state.
 pub fn allocpg(regs: &mut IntRegisterState) {
     // Get number of pages to allocate.
-    let count = regs.ebx;
+    let count  = regs.ebx;
+    let result = alloc_pages(count);
 
-    let addr = alloc_pages(count).unwrap_or_else(|_| {
-        pr_err!("Error to allocate {count} pages");
-        0
-    });
+    match result {
+        Ok(addr) => {
+            // Put return value into eax register.
+            regs.eax = SyscallResult::Success as u32;
 
-    if addr == 0 || count == 0 {
-        // Error return value -1.
-        regs.eax = SyscallResult::Error as u32;
-        return;
+            // Put memory page address.
+            regs.ebx = addr;
+        }
+        Err(_) => {
+            // Error return value -1.
+            regs.eax = SyscallResult::Error as u32;
+        }
     }
-
-    // Put return value into eax register.
-    regs.eax = SyscallResult::Success as u32;
-
-    // Put memory page address.
-    regs.ebx = addr;
 }
