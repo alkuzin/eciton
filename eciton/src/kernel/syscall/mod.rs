@@ -66,7 +66,7 @@ pub fn init() {
 use crate::tests::*;
 
 exotest! {
-    use crate::kernel::syscall::sys::SyscallResult;
+    use crate::kernel::{syscall::sys::SyscallResult, memory::free_pages};
     use eciton_sdk::vbe::Framebuffer;
 
     exotest_test_cases! {
@@ -111,7 +111,45 @@ exotest! {
             // Check return value.
             let ret = regs.eax;
             assert_eq!(ret, SyscallResult::Error as u32);
-        }
+        },
 
+        test_allocpg_syscall_successful, {
+            let mut regs = IntRegisterState::default();
+            let count = 6;
+            regs.ebx  = count;
+            sys::allocpg(&mut regs);
+
+            // Check return value.
+            let ret = regs.eax;
+            assert_eq!(ret, SyscallResult::Success as u32);
+
+            // Check memory address.
+            let addr = regs.ebx;
+            assert_ne!(addr, 0);
+
+            let _ = free_pages(addr, count);
+        },
+
+        test_allocpg_syscall_allocate_zero_pages, {
+            let mut regs = IntRegisterState::default();
+            let count = 0;
+            regs.ebx  = count;
+            sys::allocpg(&mut regs);
+
+            // Check return value.
+            let ret = regs.eax;
+            assert_eq!(ret, SyscallResult::Error as u32);
+        },
+
+        test_allocpg_syscall_allocate_too_many_pages, {
+            let mut regs = IntRegisterState::default();
+            let count = 1337;
+            regs.ebx  = count;
+            sys::allocpg(&mut regs);
+
+            // Check return value.
+            let ret = regs.eax;
+            assert_eq!(ret, SyscallResult::Error as u32);
+        }
     }
 }
