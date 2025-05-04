@@ -53,10 +53,8 @@ pub fn init(_boot_info: &MultibootInfo) {
     syscall::init();
     pr_ok!("Initialized system call handler.");
 
-    exotest_custom_run! {
-        memory::run_tests();
-        syscall::run_tests();
-    }
+    // Run tests for these modules.
+    exotest_run_modules!(memory, syscall);
 
     pr_ok!("Running default libOS.");
     ecos::libos_main(Context::default());

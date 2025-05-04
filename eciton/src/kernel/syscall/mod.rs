@@ -63,17 +63,12 @@ pub fn init() {
     irq::request(SYSCALL_NUM, syscall_handler);
 }
 
-// TODO: put contents of exotest to tests module.
-
 use crate::tests::*;
 
 exotest! {
     exotest_test_cases! {
         test_syscalls, {
-            sys::null::run_tests();
-            sys::getfb::run_tests();
-            sys::allocpg::run_tests();
-            sys::freepg::run_tests();
+            exotest_run_modules!(sys);
         }
     }
 }

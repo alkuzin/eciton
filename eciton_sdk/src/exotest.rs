@@ -48,7 +48,7 @@ impl TestSuite {
 macro_rules! exotest_run {
     () => {
         #[cfg(feature = "exotest")]
-        run_tests();
+        run();
     };
 }
 
@@ -61,8 +61,8 @@ macro_rules! exotest_run {
 /// ```
 ///  exotest_custom_run! {
 ///     // Run tests for other modules.
-///     module1::run_tests();
-///     module2::run_tests();
+///     module1::tests::run();
+///     module2::tests::run();
 ///
 ///     print_some_debug_info(...);
 ///
@@ -80,6 +80,27 @@ macro_rules! exotest_custom_run {
     };
 }
 
+/// Macro to run tests for multiple modules.
+///
+/// # Parameters
+/// - `module` - given module name.
+///
+/// # Usage
+/// ```
+///  exotest_run_modules!(module1, module2, ..., moduleN);
+/// ```
+#[macro_export]
+macro_rules! exotest_run_modules {
+    ($($module:ident),*) => {
+        $(
+            #[cfg(feature = "exotest")]
+            {
+                $module::tests::run();
+            }
+        )*
+    };
+}
+
 /// Macro for compiling its items only during testing.
 ///
 /// # Parameters
@@ -87,10 +108,13 @@ macro_rules! exotest_custom_run {
 #[macro_export]
 macro_rules! exotest {
     ($($item:item)*) => {
-        $(
-            #[cfg(feature = "exotest")]
-            $item
-        )*
+        #[cfg(feature = "exotest")]
+        pub mod tests {
+            use super::*;
+            $(
+                $item
+            )*
+        }
     };
 }
 
@@ -144,7 +168,7 @@ macro_rules! exotest_test_cases {
         )*
 
         // Create entry point for running tests.
-        pub fn run_tests() {
+        pub fn run() {
             // Create the test suite.
             let test_suite = TestSuite {
                 output_result: test_passed,
@@ -179,12 +203,16 @@ macro_rules! exotest_test_cases {
 /// # Usage
 /// ```
 /// exotest! {
-///     exotest_register_handlers!(
-///         |name: &str| { ... },
-///         |name: &str| { ... },
-///         |name: &str| { ... },
-///         |info: &PanicInfo| -> ! { ... }
-///     );
+///     pub mod tests {
+///         use super::*;
+///
+///         exotest_register_handlers!(
+///             |name: &str| { ... },
+///             |name: &str| { ... },
+///             |name: &str| { ... },
+///             |info: &PanicInfo| -> ! { ... }
+///         );
+///     }
 /// }
 /// ```
 #[macro_export]

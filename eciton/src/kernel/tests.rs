@@ -19,8 +19,12 @@
 #[allow(unused_imports)]
 pub use eciton_sdk::{
     exotest_register_handlers, exotest_test_cases, exotest_ignore,
-    exotest_run, exotest_custom_run, exotest, exotest::{Test, TestSuite},
+    exotest_run, exotest_custom_run, exotest_run_modules, exotest,
+    exotest::{Test, TestSuite},
 };
+
+#[cfg(feature = "exotest")]
+pub use tests::*;
 
 exotest! {
     use core::panic::PanicInfo;
@@ -46,7 +50,6 @@ exotest! {
         |info: &PanicInfo| -> ! {
             let location = info.location().unwrap();
 
-            // TODO: add pr_test!.
             printk!("[TEST ] Test failed in file: '{}' on line: {} at column: {}",
                 location.file(), location.line(), location.column()
             );

@@ -36,3 +36,18 @@ pub enum SyscallResult {
     /// This field is used if syscall operation failed.
     Error = u32::MAX,
 }
+
+use crate::tests::*;
+
+exotest! {
+    exotest_test_cases! {
+        test_syscalls, {
+            exotest_run_modules!(
+                null,
+                getfb,
+                allocpg,
+                freepg
+            );
+        }
+    }
+}
