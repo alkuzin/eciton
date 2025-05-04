@@ -20,7 +20,7 @@ mod manager;
 mod layout;
 
 use eciton_sdk::{collections::Bitmap, bitops::bits_to_bytes, page::Page};
-use crate::{pr_debug, pr_err, BOOT_INFO};
+use crate::{pr_debug, BOOT_INFO};
 use core::{ffi::c_void, ptr};
 use manager::MemoryManager;
 use layout::*;
@@ -33,6 +33,12 @@ const PAGE_USED: bool = true;
 
 /// Max number of pages to allocate/free at once.
 pub const PAGE_LIMIT: usize = 128;
+
+/// Number of page containing GDT.
+const GDT_PAGE_NUM: usize = 0;
+
+/// Number of page containing multiboot info structure.
+const MULTIBOOT_PAGE_NUM: usize = 16;
 
 /// Initialize physical memory manager.
 pub fn init() {
@@ -75,8 +81,8 @@ pub fn init() {
 
     // These pages containing reserved data that should not
     // be accessed, so it was set as used:
-    mm.reserve_page(0);    // Containing GDT.
-    mm.reserve_page(16);   // Containing multiboot info structure.
+    mm.reserve_page(GDT_PAGE_NUM);
+    mm.reserve_page(MULTIBOOT_PAGE_NUM);
 
     // Output for debug purpose.
     print_memory_info(&mm, bitmap_addr, bitmap_size);
@@ -215,7 +221,6 @@ pub fn free_pages(addr: u32, count: u32) -> Result<(), ()> {
 
     // Handle incorrect number of pages.
     if n == 0 || n >= PAGE_LIMIT || n >= mm.max_pages || n >= mm.used_pages {
-        pr_err!("Cannot free 0 pages");
         return Err(());
     }
 
@@ -226,14 +231,12 @@ pub fn free_pages(addr: u32, count: u32) -> Result<(), ()> {
     let range     = begin_pos..end_pos;
 
     if range.contains(&0) || range.contains(&16) {
-        pr_err!("Page count is in forbidden range {:#?}", range);
         return Err(());
     }
 
     // Handle freeing of already free page.
     for i in 0..n {
         if mm.bitmap.get(begin_pos + i) == PAGE_FREE {
-            pr_err!("Error to free already free page");
             return Err(());
         }
     }
@@ -359,6 +362,19 @@ exotest! {
 
         test_freeing_more_pages_than_can_be_freed, {
             let result = free_pages(0x1000, PAGE_LIMIT as u32);
+
+            assert!(result.is_err());
+        },
+
+        test_freeing_forbidden_pages, {
+            let count  = 1;
+            let addr   = Page::addr_from(GDT_PAGE_NUM);
+            let result = free_pages(addr, count);
+
+            assert!(result.is_err());
+
+            let addr   = Page::addr_from(MULTIBOOT_PAGE_NUM);
+            let result = free_pages(addr, count);
 
             assert!(result.is_err());
         }
