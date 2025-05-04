@@ -63,10 +63,15 @@ pub fn init() {
     irq::request(SYSCALL_NUM, syscall_handler);
 }
 
+// TODO: put contents of exotest to tests module.
+
 use crate::tests::*;
 
 exotest! {
-    use crate::kernel::{syscall::sys::SyscallResult, memory::free_pages};
+    use crate::kernel::{
+        memory::{alloc_pages, free_pages, PAGE_LIMIT},
+        syscall::sys::SyscallResult,
+    };
     use eciton_sdk::vbe::Framebuffer;
 
     exotest_test_cases! {
@@ -146,6 +151,61 @@ exotest! {
             let count = 1337;
             regs.ebx  = count;
             sys::allocpg(&mut regs);
+
+            // Check return value.
+            let ret = regs.eax;
+            assert_eq!(ret, SyscallResult::Error as u32);
+        },
+
+        test_freepg_syscall_successful, {
+            let count = 6;
+            let addr  = alloc_pages(count).unwrap();
+
+            let mut regs = IntRegisterState::default();
+            regs.ebx     = addr;
+            regs.ecx     = count;
+            sys::freepg(&mut regs);
+
+            // Check return value.
+            let ret = regs.eax;
+            assert_eq!(ret, SyscallResult::Success as u32);
+
+            let _ = free_pages(addr, count);
+        },
+
+        test_freepg_syscall_free_zero_pages, {
+            let count = 0;
+
+            let mut regs = IntRegisterState::default();
+            regs.ebx     = 0;
+            regs.ecx     = count;
+            sys::freepg(&mut regs);
+
+            // Check return value.
+            let ret = regs.eax;
+            assert_eq!(ret, SyscallResult::Error as u32);
+        },
+
+        test_freepg_syscall_free_incorrect_address, {
+            let count = 6;
+
+            let mut regs = IntRegisterState::default();
+            regs.ebx     = 0;
+            regs.ecx     = count;
+            sys::freepg(&mut regs);
+
+            // Check return value.
+            let ret = regs.eax;
+            assert_eq!(ret, SyscallResult::Error as u32);
+        },
+
+        test_freepg_syscall_free_too_many_pages, {
+            let count = PAGE_LIMIT as u32;
+
+            let mut regs = IntRegisterState::default();
+            regs.ebx     = 0;
+            regs.ecx     = count;
+            sys::freepg(&mut regs);
 
             // Check return value.
             let ret = regs.eax;

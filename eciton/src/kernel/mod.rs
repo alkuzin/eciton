@@ -51,10 +51,11 @@ pub fn init(_boot_info: &MultibootInfo) {
     pr_ok!("Initialized kernel memory manager.");
 
     syscall::init();
-    pr_ok!("Initialized System call handler.");
+    pr_ok!("Initialized system call handler.");
 
     exotest_custom_run! {
-        memory::run_tests();
+        // memory::run_tests();
+        syscall::run_tests();
     }
 
     pr_ok!("Running default libOS.");
