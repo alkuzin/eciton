@@ -195,6 +195,12 @@ fn get_free_pages(mm: &MemoryManager, count: u32) -> Result<usize, ()> {
     Err(())
 }
 
+/// Max number of pages to allocate/free at once.
+const PAGE_LIMIT: usize = 128;
+
+// TODO: replace pr_err with Err(msg) or custom enum.
+// TODO: move other debug info to syscall handler.
+
 /// Allocate free zeroed pages.
 ///
 /// # Parameters
@@ -213,12 +219,19 @@ pub fn alloc_pages(count: u32) -> Result<u32, ()> {
         return Err(());
     }
 
+    // Handle allocating 0 pages.
     if n == 0 {
         pr_err!("Cannot allocate 0 pages");
         return Err(());
     }
 
-    // Handle not enough of free blocks.
+    // Handle allocating more pages that allowed per once.
+    if n >= PAGE_LIMIT {
+        pr_err!("Allocation count cannot exceed page limit");
+        return Err(());
+    }
+
+    // Handle allocating more pages than available.
     let free_pages = mm.max_pages - mm.used_pages;
 
     if n >= free_pages {
@@ -256,12 +269,25 @@ pub fn free_pages(addr: u32, count: u32) -> Result<(), ()> {
     let mut mm = manager::MM.lock();
     let n      = count as usize;
 
+    // Handle freeing 0 pages.
+    if n == 0 {
+        pr_err!("Cannot free 0 pages");
+        return Err(());
+    }
+
+    // Handle freeing more pages that allowed pre once.
+    if n >= PAGE_LIMIT {
+        pr_err!("Freeing count cannot exceed page limit");
+        return Err(());
+    }
+
     // Handle incorrect number of pages.
     if n >= mm.max_pages {
         pr_err!("Page count exceed total number of pages");
         return Err(());
     }
 
+    // Handle freeing more pages that used.
     if n >= mm.used_pages {
         pr_err!("Page count exceed total number of used pages");
         return Err(());
@@ -276,6 +302,14 @@ pub fn free_pages(addr: u32, count: u32) -> Result<(), ()> {
     if range.contains(&0) || range.contains(&16) {
         pr_err!("Page count is in forbidden range {:#?}", range);
         return Err(());
+    }
+
+    // Handle freeing of already free page.
+    for i in 0..n {
+        if mm.bitmap.get(begin_pos + i) == PAGE_FREE {
+            pr_err!("Error to free already free page");
+            return Err(());
+        }
     }
 
     // Set n pages as free.
@@ -317,7 +351,7 @@ exotest! {
         },
 
         test_successful_large_page_allocation, {
-            let count  = 2048;
+            let count  = (PAGE_LIMIT - 1) as u32;
             let result = alloc_pages(count);
 
             assert!(result.is_ok());
@@ -347,6 +381,60 @@ exotest! {
 
             let _ = free_pages(addr1, count1);
             let _ = free_pages(addr2, count2);
+        },
+
+        test_allocating_more_pages_than_can_be_allocated, {
+            let result = alloc_pages(PAGE_LIMIT as u32);
+
+            assert!(result.is_err());
+        },
+
+        test_successful_freeing, {
+            let count  = 1;
+            let result = alloc_pages(count);
+
+            assert!(result.is_ok());
+
+            let addr   = result.unwrap();
+            let result = free_pages(addr, count);
+
+            assert!(result.is_ok());
+        },
+
+        test_freeing_zero_pages, {
+            let count  = 0;
+            let result = free_pages(0x1000, count);
+
+            assert!(result.is_err());
+        },
+
+        test_freeing_free_page, {
+            let count  = 1;
+            let result = alloc_pages(count);
+
+            assert!(result.is_ok());
+
+            let addr   = result.unwrap();
+            let result = free_pages(addr, count);
+
+            assert!(result.is_ok());
+
+            // Try to free already freed page.
+            let result = free_pages(addr, count);
+
+            assert!(result.is_err());
+        },
+
+        test_freeing_non_allocated_pages, {
+            let result = free_pages(0, 10);
+
+            assert!(result.is_err());
+        },
+
+        test_freeing_more_pages_than_can_be_freed, {
+            let result = free_pages(0x1000, PAGE_LIMIT as u32);
+
+            assert!(result.is_err());
         }
     }
 }
