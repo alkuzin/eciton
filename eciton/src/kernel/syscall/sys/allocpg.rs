@@ -43,7 +43,7 @@ pub fn allocpg(regs: &mut IntRegisterState) {
     }
 }
 
-use crate::tests::*;
+use crate::test::*;
 
 exotest! {
     use crate::kernel::memory::free_pages;

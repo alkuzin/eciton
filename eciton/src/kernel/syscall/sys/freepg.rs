@@ -46,7 +46,7 @@ pub fn freepg(regs: &mut IntRegisterState) {
     }
 }
 
-use crate::tests::*;
+use crate::test::*;
 
 exotest! {
     use crate::kernel::memory::{alloc_pages, PAGE_LIMIT};

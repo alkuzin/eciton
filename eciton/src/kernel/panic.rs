@@ -15,7 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 //! Kernel panic function.
-use crate::kernel::tests::exotest_ignore;
+use crate::kernel::test::exotest_ignore;
 
 exotest_ignore! {
     use crate::{kernel::debug, pr_panic};

@@ -20,7 +20,7 @@
 pub use eciton_sdk::{
     exotest_register_handlers, exotest_test_cases, exotest_ignore,
     exotest_run, exotest_custom_run, exotest_run_modules, exotest,
-    exotest::{Test, TestSuite},
+    exotest_register_failed_test_handler, exotest::{Test, TestSuite},
 };
 
 #[cfg(feature = "exotest")]
@@ -44,8 +44,10 @@ exotest! {
         // Function to log when a test has passed.
         |name: &str| {
             printk!("[TEST ] Test <{name}> passed [OK]");
-        },
+        }
+    );
 
+    exotest_register_failed_test_handler!(
         // Panic handler for when a test fails.
         |info: &PanicInfo| -> ! {
             let location = info.location().unwrap();

@@ -63,7 +63,7 @@ pub fn init() {
     irq::request(SYSCALL_NUM, syscall_handler);
 }
 
-use crate::tests::*;
+use crate::test::*;
 
 exotest! {
     exotest_test_cases! {

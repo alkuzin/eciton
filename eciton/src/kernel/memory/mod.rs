@@ -251,7 +251,7 @@ pub fn free_pages(addr: u32, count: u32) -> Result<(), ()> {
     Ok(())
 }
 
-use crate::tests::*;
+use crate::test::*;
 
 exotest! {
     exotest_test_cases! {

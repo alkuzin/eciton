@@ -48,7 +48,7 @@ impl TestSuite {
 macro_rules! exotest_run {
     () => {
         #[cfg(feature = "exotest")]
-        run();
+        tests::run();
     };
 }
 
@@ -67,7 +67,7 @@ macro_rules! exotest_run {
 ///     print_some_debug_info(...);
 ///
 ///     // Run tests for current module.
-///     run_tests();
+///     tests::run();
 ///  }
 /// ```
 #[macro_export]
@@ -191,14 +191,14 @@ macro_rules! exotest_test_cases {
 /// Macro to register test handlers.
 ///
 /// # Warning
-/// - This macro should be called `once` during exokernel or libOS initialization.
+/// - This macro should be called `once` during exokernel or
+/// libOS initialization.
 ///
 /// # Parameters
 /// - `running_global_body` - given function contents for log before all tests
 /// are running.
 /// - `running_body` - given function contents for log when a test is running.
 /// - `passed_body`  - given function contents for log when a test has passed.
-/// - `failed_body`  - given panic handler contents when a test has failed.
 ///
 /// # Usage
 /// ```
@@ -209,15 +209,14 @@ macro_rules! exotest_test_cases {
 ///         exotest_register_handlers!(
 ///             |name: &str| { ... },
 ///             |name: &str| { ... },
-///             |name: &str| { ... },
-///             |info: &PanicInfo| -> ! { ... }
+///             |name: &str| { ... }
 ///         );
 ///     }
 /// }
 /// ```
 #[macro_export]
 macro_rules! exotest_register_handlers {
-    ($running_global_body:expr, $running_body:expr, $passed_body:expr, $failed_body:expr) => {
+    ($running_global_body:expr, $running_body:expr, $passed_body:expr) => {
         // Function to log before all tests are running.
         pub fn test_running_global(name: &str) {
             ($running_global_body)(name);
@@ -232,7 +231,33 @@ macro_rules! exotest_register_handlers {
         pub fn test_passed(name: &str) {
             ($passed_body)(name);
         }
+    };
+}
 
+/// Macro to register failed test handler.
+///
+/// # Warning
+/// - This macro should be called `once` during exokernel or
+/// libOS initialization.
+///
+/// # Parameters
+/// - `failed_body` - given panic handler contents when a test has failed.
+///
+/// # Usage
+/// ```
+/// exotest! {
+///     pub mod tests {
+///         use super::*;
+///
+///         exotest_register_failed_test_handler!(
+///             |info: &PanicInfo| -> ! { ... }
+///         );
+///     }
+/// }
+/// ```
+#[macro_export]
+macro_rules! exotest_register_failed_test_handler {
+    ($failed_body:expr) => {
         // Panic handler for when a test fails.
         #[panic_handler]
         pub fn test_failed(info: &PanicInfo) -> ! {

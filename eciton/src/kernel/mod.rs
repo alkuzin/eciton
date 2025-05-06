@@ -19,7 +19,7 @@
 pub mod multiboot;
 pub mod printk;
 pub mod panic;
-pub mod tests;
+pub mod test;
 mod syscall;
 mod drivers;
 mod memory;
@@ -30,7 +30,7 @@ use crate::{kernel::{
     arch::i686::{gdt, idt}, drivers::uart::Uart, multiboot::MultibootInfo
 }, ecos, pr_ok};
 use eciton_sdk::context::Context;
-use tests::*;
+use test::*;
 
 /// Initialize kernel.
 ///

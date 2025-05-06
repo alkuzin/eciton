@@ -48,7 +48,7 @@ pub fn getfb(regs: &mut IntRegisterState) {
     regs.eax = SyscallResult::Success as u32;
 }
 
-use crate::tests::*;
+use crate::test::*;
 
 exotest! {
     exotest_test_cases! {

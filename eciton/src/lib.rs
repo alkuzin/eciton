@@ -28,7 +28,7 @@ mod kernel;
 use kernel::multiboot::{MULTIBOOT_BOOTLOADER_MAGIC, MultibootInfo};
 use lazy_static::lazy_static;
 use spin::Mutex;
-pub use kernel::tests;
+pub use kernel::test;
 
 lazy_static! {
     /// Global boot information struct.

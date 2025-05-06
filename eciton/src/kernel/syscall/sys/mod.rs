@@ -37,7 +37,7 @@ pub enum SyscallResult {
     Error = u32::MAX,
 }
 
-use crate::tests::*;
+use crate::test::*;
 
 exotest! {
     exotest_test_cases! {
