@@ -35,8 +35,6 @@ use crate::{
 };
 use eciton_sdk::context::Context;
 
-// TODO: add colored printk.
-
 /// LibOS entry point.
 ///
 /// # Parameters
