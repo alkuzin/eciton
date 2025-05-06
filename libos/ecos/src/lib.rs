@@ -26,6 +26,7 @@ extern crate eciton_sdk;
 
 pub mod subsystem;
 pub mod printk;
+pub mod test;
 mod api;
 
 use crate::{
@@ -33,6 +34,8 @@ use crate::{
     api::{Subsystems, LibOSCore}
 };
 use eciton_sdk::context::Context;
+
+// TODO: add colored printk.
 
 /// LibOS entry point.
 ///
