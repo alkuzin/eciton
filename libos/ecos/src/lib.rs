@@ -30,7 +30,7 @@ pub mod test;
 mod api;
 
 use crate::{
-    subsystem::{Subsystem, graphics::GraphicsSub, memory::SlabAllocator},
+    subsystem::{graphics::GraphicsSub, memory::SlabAllocator},
     api::{Subsystems, LibOSCore}
 };
 use eciton_sdk::context::Context;
@@ -44,40 +44,15 @@ pub fn libos_main(context: Context) -> ! {
     let mut graphics_subsystem = GraphicsSub::default();
     let mut slab_allocator     = SlabAllocator::default();
 
-    let subsystems: Subsystems<1> = [
+    let subsystems: Subsystems<2> = [
         &mut graphics_subsystem,
-        // &mut slab_allocator,
+        &mut slab_allocator,
     ];
 
     // Initialize libOS core module.
     let mut libos_core = LibOSCore::new(context, subsystems);
     libos_core.init().unwrap();
     pr_ok!("Initialized EcOS.");
-
-    pr_ok!("Initializing SLAB allocator");
-    let _ = slab_allocator.init();
-    let _ = slab_allocator.run();
-    // let _ = slab_allocator.exit();
-    pr_ok!("Initialized SLAB allocator");
-    // TODO: move to tests:
-    // let ret = slab_allocator.alloc_object(0);
-    // pr_debug!("{:#X?}", ret);
-    // let ret = slab_allocator.alloc_object(0);
-    // pr_debug!("{:#X?}", ret);
-    // let ret1 = slab_allocator.alloc_object(8);
-    // pr_debug!("{:X?}", ret1);
-    // let ret2 = slab_allocator.alloc_object(8);
-    // pr_debug!("{:X?}", ret2);
-    //
-    // let _ = slab_allocator.free_object(ret1.unwrap(), 8);
-    // let _ = slab_allocator.free_object(ret2.unwrap(), 8);
-    //
-    // let ret = slab_allocator.alloc_object(8);
-    // pr_debug!("{:X?}", ret);
-    // let ret = slab_allocator.alloc_object(8);
-    // pr_debug!("{:X?}", ret);
-    // let ret = slab_allocator.alloc_object(8);
-    // pr_debug!("{:X?}", ret);
 
     // Halt libOS.
     loop {}
