@@ -1,30 +1,20 @@
-# Eciton - experimental exokernel.
-# Copyright (C) 2025 Alexander (@alkuzin).
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# Project name: Eciton.
+# Description: Experimental exokernel.
+# Licence: GPL-3.0.
+# Author: Alexander (@alkuzin).
 
+# Assembler & linker settings.
 ASM    		 = as
 ASM_FLAGS    = --32
 LINKER 		 = ld
 LINKER_FLAGS = -z noexecstack -melf_i386
 
-SELECTED_TARGET = i686
+SELECTED_TARGET = x86
 
-KERNEL_PATH  	 = eciton
+KERNEL_PATH  	 = .
 BUILD_PATH   	 = build
 ISO_PATH     	 = $(BUILD_PATH)/iso
-ARCH_PATH    	 = $(KERNEL_PATH)/src/kernel/arch
+ARCH_PATH    	 = $(KERNEL_PATH)/src/arch
 ASM_PATH     	 = $(ARCH_PATH)/$(SELECTED_TARGET)/asm
 TARGETS_PATH 	 = targets/$(SELECTED_TARGET)
 GRUB_CONFIG_PATH = targets
@@ -33,10 +23,9 @@ NAME 	   		  = eciton
 ISO_NAME   		  = $(BUILD_PATH)/$(NAME).iso
 KERNEL_ELF 		  = $(ISO_PATH)/boot/$(NAME).elf
 KERNEL_STATIC_LIB = $(KERNEL_PATH)/target/$(SELECTED_TARGET)-unknown-none/debug/libeciton.a
+BUILD_TARGET      = $(TARGETS_PATH)/$(SELECTED_TARGET)-unknown-none.json
 
-ASM_SRC  = $(ASM_PATH)/boot \
-		   $(ASM_PATH)/gdt_flush \
-		   $(ASM_PATH)/idt_flush
+ASM_SRC  = $(ASM_PATH)/boot
 ASM_SRCS = $(addsuffix .asm, $(ASM_SRC))
 ASM_OBJS = $(addsuffix .o,   $(ASM_SRC))
 
