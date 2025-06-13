@@ -1,14 +1,15 @@
-# Eciton
-Experimental x86-32 exokernel written in Rust.
+# Eciton Operating System
 
-<img src="res/eciton_v0_0_1.png">
+Modular microkernel operating system. List of changes [here](CHANGELOG.md).
+
 <hr>
 
-List of changes [here](CHANGELOG.md).
+<img src="res/eciton.png">
+<hr>
 
 ## License
-Eciton - experimental exokernel.
-Copyright (C) 2025 Alexander (@alkuzin).
+Eciton - Modular microkernel operating system.
+Copyright (C) 2025 Alexander Kuzin <alkuzindev@gmail.com>.
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 

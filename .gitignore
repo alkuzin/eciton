@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 2025-06-13
+# Author: Alexander Kuzin <alkuzindev@gmail.com>.
+
 .vscode/
 target/
 build/
@@ -6,5 +10,6 @@ iso/
 tmp/
 *.txt
 *.iso
+*.log
 *.o
 *.a
