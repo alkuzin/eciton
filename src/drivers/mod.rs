@@ -2,7 +2,6 @@
 // Date: 2025-06-13
 // Author: Alexander Kuzin <alkuzindev@gmail.com>.
 
-//! Architecture-specific code main module.
+//! Kernel drivers main module.
 
-#[cfg(target_arch = "x86")]
-pub mod x86;
+pub mod vbe;

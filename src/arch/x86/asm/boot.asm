@@ -1,7 +1,6 @@
-# Project name: Eciton.
-# Description: Experimental exokernel.
-# Licence: GPL-3.0.
-# Author: Alexander (@alkuzin).
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 2025-06-13
+# Author: Alexander Kuzin <alkuzindev@gmail.com>.
 
 # Magic number is a value that BIOS recognize as a kernel.
 .set MBOOT_MAGIC, 0x1BADB002
@@ -37,8 +36,11 @@
 
 .section .bss               # Stores uninitialized global and static variables.
 .align 16                   # Reserving space for the stack.
+                            # Setup stack.
+.global stack_bottom
+.global stack_top
 stack_bottom:
-    .skip 65536             # 64 KB.
+    .skip 65536
 stack_top:
 
 .section .text              # Contains executable instructions of a program.

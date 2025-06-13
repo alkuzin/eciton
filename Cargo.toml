@@ -1,13 +1,16 @@
-# Project name: Eciton.
-# Description: Experimental exokernel.
-# Licence: GPL-3.0.
-# Author: Alexander (@alkuzin).
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 2025-06-13
+# Author:Alexander Kuzin <alkuzindev@gmail.com>.
 
 # Project package info section.
 [package]
-name    = "eciton"
-version = "0.0.1"
-edition = "2024"
+name        = "eciton"
+description = "Modular microkernel operating system"
+version     = "0.1.0"
+authors     = ["Alexander Kuzin <alkuzindev@gmail.com>"]
+repository  = "https://github.com/alkuzin/eciton"
+license     = "GPL-3"
+edition     = "2024"
 
 # Project library settings section.
 [lib]
@@ -31,5 +34,5 @@ spin        = "0.10.0"
 
 # Project features section.
 [features]
-# Eciton exokernel custom testing framework feature.
-exotest = []
+# Kernel custom testing framework feature.
+ktest = []

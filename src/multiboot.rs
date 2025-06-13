@@ -1,7 +1,6 @@
-// Project name: Eciton.
-// Description: Experimental exokernel.
-// Licence: GPL-3.0.
-// Author: Alexander (@alkuzin).
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Date: 2025-06-13
+// Author: Alexander Kuzin <alkuzindev@gmail.com>.
 
 //! Contains multiboot specification related declarations.
 
@@ -216,7 +215,7 @@ pub struct MultibootInfo {
     /// Available memory from BIOS.
     pub mem_lower: MultibootU32,
     pub mem_upper: MultibootU32,
-    /// "root" partition.
+    /// "Root" partition.
     pub boot_device: MultibootU32,
     /// Kernel command line.
     pub cmdline: MultibootU32,
@@ -290,11 +289,11 @@ pub struct MultibootModList {
     pub mod_end: MultibootU32,
     /// Module command line.
     pub cmdline: MultibootU32,
-    /// padding to take it to 16 bytes (must be zero).
+    /// Padding to take it to 16 bytes (must be zero).
     pub pad: MultibootU32,
 }
 
-// APM BIOS info.
+/// APM BIOS info.
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
 pub struct MultibootApmInfo {
